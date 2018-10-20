@@ -87,17 +87,17 @@ public class Indexer {
 
     // Math.pow(1024, 8)
     // 4gb 4294967296
-    public void addToSPIMIIndex(List<Pair<String, Integer>> list) {
+    public void addToSPIMIIndex(List<String> list, int id) {
         //System.out.println(Runtime.getRuntime().freeMemory()+ " "+ 1024*256);
-        for (Pair<String, Integer> x : list) {
-            if (!index.containsKey(x.getKey())) {
-                index.put(x.getKey(), new HashMap<>());
+        for (String x : list) {
+            if (!index.containsKey(x)) {
+                index.put(x, new HashMap<>());
             }
-            if (!index.get(x.getKey()).containsKey(x.getValue())) {
-                index.get(x.getKey()).put(x.getValue(), 1);
+            if (!index.get(x).containsKey(id)) {
+                index.get(x).put(id, 1);
             } else {
-                int cur = index.get(x.getKey()).get(x.getValue());
-                index.get(x.getKey()).put(x.getValue(), cur + 1);
+                int cur = index.get(x).get(id);
+                index.get(x).put(id, cur + 1);
             }
         }
 
