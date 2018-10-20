@@ -23,10 +23,8 @@ public class ImprovedTokenizer implements Tokenizer{
     private SnowballStemmer stemmer = null;
     private static final String stopWordsFile = "src/main/java/text/stop.txt";
     private List<String> stopWordList;
-    
     private List<Pair<String, Integer>> tokens;
 
-    
     public ImprovedTokenizer() {       
         tokens = new ArrayList();
         stopWordList = getStopWords(stopWordsFile);
@@ -39,57 +37,56 @@ public class ImprovedTokenizer implements Tokenizer{
     }
         
     @Override
-    public void tokenize(Document doc) {
-                  
-        // falta não filtar termos com "-" ou "."
+    public List<Pair<String, Integer>> tokenize(Document doc) {
+    
+        // falta não filtar termos com "-" ou "."  
+        String text = doc.getText();
+        // text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
+
+        List<String> lista = new ArrayList();
         
-        for (Iterator<Document> it = lista.iterator(); it.hasNext();) {
-            Document doc = it.next();
-            String text = doc.getText();
-           // text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
-            
-           Stream.of(text)
-                    .map(line -> line.split("\\s+"))
-                    .flatMap(Arrays::stream).parallel()
-                    .map(w -> w.replaceAll("[^\\w\\s]+", ""))
-                    .map(w -> w.trim()).parallel()
-                    .map(String::toLowerCase)
-                    .forEach(word -> {
-                        if (word.length()>0)
-                            tokens.add(new Pair<>(word, doc.getId()));
-                   });
-                         
-//            String [] split = text.split(" ");   
-//            for (String term : split) {
-//
-//                if (term.trim().length() > 0 )
-//                    tokens.add(new Pair<>(term, doc.getId()));
-//            }
-            
-        }
+        Stream.of(text)
+                .map(line -> line.split("\\s+"))
+                .flatMap(Arrays::stream).parallel()
+              //  .map(w -> w.replaceAll("[^\\w\\s]+", ""))
+                .map(w -> w.replaceAll("[*+/)\\\"\\\\|(,:;'?!\\n]", ""))
+                .map(w -> w.trim()).parallel()
+                .map(String::toLowerCase)
+                .forEach(word -> {
+                    if (word.length() > 3) {
+                        //tokens.add(new Pair<>(word, doc.getId()));
+                        
+                        lista.add(word);
+                    }
+                });
         System.out.println(tokens);
-        
-//        for (Pair<String, Integer> terms : tokens) {
-//            System.out.println(terms);
-//        }
+
         // remover stop words dos tokens
-        filterWithWordList(stopWordList);
-                
+        filterWithWordList(lista, stopWordList);
+
         if (stemmer != null) {
             // stemmer    
-            useStemmer();   
+            useStemmer(lista);
         }
-               
+        return tokens; 
     }
     
-    public void useStemmer() {
-        int value;
-        for (int i = 0; i < tokens.size(); i++) {
-            value = tokens.get(i).getValue();
-            stemmer.setCurrent(tokens.get(i).getKey());
+    public void useStemmer(List<String> tokens) {
+//        int value;
+//        for (int i = 0; i < tokens.size(); i++) {
+//            value = tokens.get(i).getValue();
+//            stemmer.setCurrent(tokens.get(i).getKey());
+//            stemmer.stem();
+//            tokens.set(i, new Pair<>(stemmer.getCurrent(), value));
+//        }
+        int i = 0;
+        for (String s : tokens) {
+            stemmer.setCurrent(s);
             stemmer.stem();
-            tokens.set(i, new Pair<>(stemmer.getCurrent(), value));
+            tokens.set(i, stemmer.getCurrent());
+            i++;
         }
+
     }
     
     public List<String> getStopWords(String fileName) {
@@ -112,24 +109,24 @@ public class ImprovedTokenizer implements Tokenizer{
         return lista;
     }
     
-    public List<Pair<String, Integer>> filterWithWordList(List<String> wordList) {   
+    public List<String> filterWithWordList(List<String> tokens, List<String> wordList) {   
 
-        List<Pair<String, Integer>> termos = new ArrayList();
-        Iterator<Pair<String, Integer>> it = tokens.iterator();
-        while(it.hasNext()) {
-            Pair<String, Integer> termo = it.next();
-            if(!wordList.contains(termo.getKey())) {
-                termos.add(termo);      
-            }
-        }
-        return termos;
+//        List<Pair<String, Integer>> termos = new ArrayList();
+//        Iterator<Pair<String, Integer>> it = tokens.iterator();
+//        while(it.hasNext()) {
+//            Pair<String, Integer> termo = it.next();
+//            if(!wordList.contains(termo.getKey())) {
+//                termos.add(termo);      
+//            }
+//        }
+        tokens.removeAll(wordList);
+        return tokens;
     }
 
     public List<String> getStopWordList() {
         return stopWordList;
     }
   
-    @Override
     public List<Pair<String, Integer>> getTermos() {
         return tokens;
     } 

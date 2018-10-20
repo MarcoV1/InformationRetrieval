@@ -4,12 +4,11 @@ import corpus.TSVReader;
 import documents.Document;
 import indexer.Indexer;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.util.Pair;
+import org.tartarus.snowball.ext.englishStemmer;
+import tokenizer.ImprovedTokenizer;
 import tokenizer.SimpleTokenizer;
 import tokenizer.Tokenizer;
 
@@ -23,7 +22,7 @@ public class Main {
         } catch (IOException ex) {
             System.out.println("No file :(");
         }
-        Tokenizer tokenizer = new SimpleTokenizer();;
+        Tokenizer tokenizer = null;
         Indexer indexer = new Indexer();
 
         Scanner sc = new Scanner(System.in);
@@ -31,16 +30,30 @@ public class Main {
         String typeTokenizer;
         do {
             typeTokenizer = sc.nextLine().toLowerCase();
-
         } while (!typeTokenizer.equals("simples") && !typeTokenizer.equals("improved"));
 
         if (typeTokenizer.equals("simples")) {
             tokenizer = new SimpleTokenizer();
         }
+        else if (typeTokenizer.equals("improved")) {
+            System.out.println("Com ou sem stemmer? (c/s)");
+             do{
+                typeTokenizer = sc.nextLine().toLowerCase();
+            
+            }while(!typeTokenizer.equals("c") && !typeTokenizer.equals("s"));
+     
+            if (typeTokenizer.equals("s")) {
+                tokenizer = new ImprovedTokenizer();
+                //tokenizer.tokenize(documentos);
+            }
+            else if (typeTokenizer.equals("c")) {
+                tokenizer = new ImprovedTokenizer(new englishStemmer());
+               // tokenizer.tokenize(documentos);
+            }
+        }
         Runtime runtime = Runtime.getRuntime();
         
         Document doc = corpus.nextDocument();
-        //Document doc = null;
         System.out.println("Starting block by block index");
         while (doc != null) {
             if ((runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (1024*0.85)) {
@@ -50,7 +63,6 @@ public class Main {
                 System.gc();
                 System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
             }
-            //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
             indexer.addToSPIMIIndex(tokenizer.tokenize(doc));
             doc = corpus.nextDocument();
             //System.out.println(doc);
@@ -62,26 +74,5 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        else if (typeTokenizer.equals("improved")) {
-            System.out.println("Com ou sem stemmer? (c/s)");
-             do{
-                typeTokenizer = sc.nextLine().toLowerCase();
-            
-            }while(!typeTokenizer.equals("c") && !typeTokenizer.equals("s"));
-     
-            if (typeTokenizer.equals("s")) {
-                tokenizer = new ImprovedTokenizer();
-                tokenizer.tokenize(documentos);
-                System.out.println(tokenizer.getTermos());
-            }
-            else if (typeTokenizer.equals("c")) {
-                tokenizer = new ImprovedTokenizer(new englishStemmer());
-                tokenizer.tokenize(documentos);
-                System.out.println(tokenizer.getTermos());
-            }
-             
-           
-        }
     }
-
 }
