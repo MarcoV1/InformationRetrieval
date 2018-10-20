@@ -8,7 +8,6 @@ package tokenizer;
 import documents.Document;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.util.Pair;
 
 public class SimpleTokenizer implements Tokenizer {
 
@@ -20,7 +19,6 @@ public class SimpleTokenizer implements Tokenizer {
         // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
         String alpText = text.replaceAll("[^A-Za-z ]", "").toLowerCase();
         String[] textArray = alpText.split(" ");
-
         for (String s : textArray) {
             String temp = s.trim();
             if (temp.length() >= 3) {

@@ -18,6 +18,7 @@ public class Main {
 
         CorpusReader corpus = null;
         try {
+            // src\main\java\text\amazon_reviews_us_Wireless_v1_00.tsv -xmx 256m
             corpus = new TSVReader(args[0]);
         } catch (IOException ex) {
             System.out.println("No file :(");

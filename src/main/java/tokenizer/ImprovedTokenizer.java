@@ -10,68 +10,57 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
-import javafx.util.Pair;
 import org.tartarus.snowball.SnowballStemmer;
-
 
 public class ImprovedTokenizer implements Tokenizer{
     
     private SnowballStemmer stemmer = null;
     private static final String stopWordsFile = "src/main/java/text/stop.txt";
     private List<String> stopWordList;
-    private List<Pair<String, Integer>> tokens;
 
     public ImprovedTokenizer() {       
-        tokens = new ArrayList();
         stopWordList = getStopWords(stopWordsFile);
     }
     
     public ImprovedTokenizer(SnowballStemmer stemmer) {
         this.stemmer = stemmer;
-        this.tokens = new ArrayList();
         this.stopWordList = getStopWords(stopWordsFile);
     }
         
     @Override
-    public List<Pair<String, Integer>> tokenize(Document doc) {
+    public List<String> tokenize(Document doc) {
     
         // falta não filtar termos com "-" ou "."  
         String text = doc.getText();
-        // text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
+        //text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
 
-        List<String> lista = new ArrayList();
-        
-        Stream.of(text)
-                .map(line -> line.split("\\s+"))
-                .flatMap(Arrays::stream).parallel()
-              //  .map(w -> w.replaceAll("[^\\w\\s]+", ""))
-                .map(w -> w.replaceAll("[*+/)\\\"\\\\|(,:;'?!\\n]", ""))
-                .map(w -> w.trim()).parallel()
-                .map(String::toLowerCase)
-                .forEach(word -> {
-                    if (word.length() > 3) {
-                        //tokens.add(new Pair<>(word, doc.getId()));
-                        
-                        lista.add(word);
-                    }
-                });
-        System.out.println(tokens);
+         List<String> tokens = new ArrayList<>();
+         
+        // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
+        String alpText = text.replaceAll("[^A-Za-z ]", "").toLowerCase();
+        String[] textArray = alpText.split(" ");
+        for (String s : textArray) {
+            String temp = s.trim();
+            if (temp.length() >= 3) {
+                // adicionar os termos
+                tokens.add(temp);
+            }
+        }
+
+    //    System.out.println(tokens);
 
         // remover stop words dos tokens
-        filterWithWordList(lista, stopWordList);
+        tokens = filterWithWordList(tokens, stopWordList);
 
         if (stemmer != null) {
             // stemmer    
-            useStemmer(lista);
+            tokens = useStemmer(tokens);
         }
         return tokens; 
     }
     
-    public void useStemmer(List<String> tokens) {
+    public List<String> useStemmer(List<String> tokens) {
 //        int value;
 //        for (int i = 0; i < tokens.size(); i++) {
 //            value = tokens.get(i).getValue();
@@ -86,7 +75,7 @@ public class ImprovedTokenizer implements Tokenizer{
             tokens.set(i, stemmer.getCurrent());
             i++;
         }
-
+        return tokens;
     }
     
     public List<String> getStopWords(String fileName) {
@@ -126,8 +115,5 @@ public class ImprovedTokenizer implements Tokenizer{
     public List<String> getStopWordList() {
         return stopWordList;
     }
-  
-    public List<Pair<String, Integer>> getTermos() {
-        return tokens;
-    } 
+
 }
