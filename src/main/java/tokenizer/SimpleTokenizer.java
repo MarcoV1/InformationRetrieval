@@ -37,9 +37,6 @@ public class SimpleTokenizer implements Tokenizer{
                }
            }
         }
-        
-       
-   
     }
 
     public List<Pair<String, Integer>> getTermos() {

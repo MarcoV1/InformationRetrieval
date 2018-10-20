@@ -23,9 +23,7 @@ public class TSVReader implements CorpusReader{
         this.documents = new ArrayList();
         
         File file = checkFile(dir);
-        readFile(file);
-        
-        
+        readFile(file);  
     }
     
     private File checkFile(String dir) {
@@ -46,7 +44,7 @@ public class TSVReader implements CorpusReader{
             String[] split;
             while ((current = br.readLine()) != null) {
                 if (i == 0) {
-                    System.out.println(current);
+                    // System.out.println(current);
                 } else {
                     //5 , 12, 13
                     split = current.split("\\t");
