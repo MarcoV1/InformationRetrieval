@@ -5,52 +5,132 @@
  */
 package tokenizer;
 
-// importar e usar a cena do snowball stemmer
-
-import documents.TSVDocument;
+import documents.Document;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+import javafx.util.Pair;
 import org.tartarus.snowball.SnowballStemmer;
 
 
-public class ImprovedTokenizer {
+public class ImprovedTokenizer implements Tokenizer{
     
-    private SnowballStemmer stemmer;
-    private final String stopWordsFile = "../text/stop.txt";
+    private SnowballStemmer stemmer = null;
+    private static final String stopWordsFile = "src/main/java/text/stop.txt";
     private List<String> stopWordList;
     
-    public ImprovedTokenizer() {
+    private List<Pair<String, Integer>> tokens;
+
     
-        getStopWords(stopWordsFile);
-        
-    
+    public ImprovedTokenizer() {       
+        tokens = new ArrayList();
+        stopWordList = getStopWords(stopWordsFile);
     }
     
-    
-    
-    public void getStopWords(String fileName) {
+    public ImprovedTokenizer(SnowballStemmer stemmer) {
+        this.stemmer = stemmer;
+        this.tokens = new ArrayList();
+        this.stopWordList = getStopWords(stopWordsFile);
+    }
         
+    @Override
+    public void tokenize(Document doc) {
+                  
+        // falta não filtar termos com "-" ou "."
+        
+        for (Iterator<Document> it = lista.iterator(); it.hasNext();) {
+            Document doc = it.next();
+            String text = doc.getText();
+           // text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
+            
+           Stream.of(text)
+                    .map(line -> line.split("\\s+"))
+                    .flatMap(Arrays::stream).parallel()
+                    .map(w -> w.replaceAll("[^\\w\\s]+", ""))
+                    .map(w -> w.trim()).parallel()
+                    .map(String::toLowerCase)
+                    .forEach(word -> {
+                        if (word.length()>0)
+                            tokens.add(new Pair<>(word, doc.getId()));
+                   });
+                         
+//            String [] split = text.split(" ");   
+//            for (String term : split) {
+//
+//                if (term.trim().length() > 0 )
+//                    tokens.add(new Pair<>(term, doc.getId()));
+//            }
+            
+        }
+        System.out.println(tokens);
+        
+//        for (Pair<String, Integer> terms : tokens) {
+//            System.out.println(terms);
+//        }
+        // remover stop words dos tokens
+        filterWithWordList(stopWordList);
+                
+        if (stemmer != null) {
+            // stemmer    
+            useStemmer();   
+        }
+               
+    }
+    
+    public void useStemmer() {
+        int value;
+        for (int i = 0; i < tokens.size(); i++) {
+            value = tokens.get(i).getValue();
+            stemmer.setCurrent(tokens.get(i).getKey());
+            stemmer.stem();
+            tokens.set(i, new Pair<>(stemmer.getCurrent(), value));
+        }
+    }
+    
+    public List<String> getStopWords(String fileName) {
+        List<String> lista = new ArrayList();
          try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String current;
-            String[] split;
-            while ((current = br.readLine()) != null) {
-                
-                // falta remover os comentarios
-                
-                stopWordList.add(current.trim());
+            while ((current = br.readLine()) != null) {     
+                String removed = current.trim();          
+                if (removed.length() > 0) {
+                    if (removed.contains("|")) {  
+                        removed = removed.substring(0, removed.indexOf("|"));
+                        if (removed.length() > 0 ) { lista.add(removed.trim()); }
+                    }
+                    else {
+                        lista.add(removed);
+                    }
+                }                       
+            }   
+        } catch (IOException e) { }
+        return lista;
+    }
+    
+    public List<Pair<String, Integer>> filterWithWordList(List<String> wordList) {   
+
+        List<Pair<String, Integer>> termos = new ArrayList();
+        Iterator<Pair<String, Integer>> it = tokens.iterator();
+        while(it.hasNext()) {
+            Pair<String, Integer> termo = it.next();
+            if(!wordList.contains(termo.getKey())) {
+                termos.add(termo);      
             }
-            
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        return termos;
     }
 
     public List<String> getStopWordList() {
         return stopWordList;
     }
-    
-    
-    
+  
+    @Override
+    public List<Pair<String, Integer>> getTermos() {
+        return tokens;
+    } 
 }

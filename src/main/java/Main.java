@@ -62,6 +62,26 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        else if (typeTokenizer.equals("improved")) {
+            System.out.println("Com ou sem stemmer? (c/s)");
+             do{
+                typeTokenizer = sc.nextLine().toLowerCase();
+            
+            }while(!typeTokenizer.equals("c") && !typeTokenizer.equals("s"));
+     
+            if (typeTokenizer.equals("s")) {
+                tokenizer = new ImprovedTokenizer();
+                tokenizer.tokenize(documentos);
+                System.out.println(tokenizer.getTermos());
+            }
+            else if (typeTokenizer.equals("c")) {
+                tokenizer = new ImprovedTokenizer(new englishStemmer());
+                tokenizer.tokenize(documentos);
+                System.out.println(tokenizer.getTermos());
+            }
+             
+           
+        }
     }
 
 }

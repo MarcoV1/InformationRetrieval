@@ -12,6 +12,6 @@ import javafx.util.Pair;
 
 public interface Tokenizer {
     
-    public List<Pair<String, Integer>> tokenize(Document lista);
+    public List<Pair<String, Integer>> tokenize(Document doc);
     
 }
