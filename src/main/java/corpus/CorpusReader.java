@@ -11,8 +11,5 @@ import java.util.List;
 
 public interface CorpusReader {
     
-    
-    public void addDoc(Document doc);
-    
-    public List<Document> getDocuments();
+    public Document nextDocument();
 }

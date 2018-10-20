@@ -2,39 +2,66 @@
 import corpus.CorpusReader;
 import corpus.TSVReader;
 import documents.Document;
+import indexer.Indexer;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.util.Pair;
 import tokenizer.SimpleTokenizer;
 import tokenizer.Tokenizer;
 
-
 public class Main {
-    
+
     public static void main(String[] args) {
 
-        CorpusReader corpus = new TSVReader(args[0]);
-
-        List<Document> documentos = corpus.getDocuments();
-        
-        for (Document d : documentos) {    
-            System.out.println(d);
+        CorpusReader corpus = null;
+        try {
+            corpus = new TSVReader(args[0]);
+        } catch (IOException ex) {
+            System.out.println("No file :(");
         }
-        
+        Tokenizer tokenizer = new SimpleTokenizer();;
+        Indexer indexer = new Indexer();
+
         Scanner sc = new Scanner(System.in);
         System.out.println("Tipo de tokenizer a ser usado: \n>Simples\n>Improved");
         String typeTokenizer;
-        do{
+        do {
             typeTokenizer = sc.nextLine().toLowerCase();
-            
-        }while(!typeTokenizer.equals("simples") && !typeTokenizer.equals("improved"));
-        
-        Tokenizer tokenizer;
+
+        } while (!typeTokenizer.equals("simples") && !typeTokenizer.equals("improved"));
+
         if (typeTokenizer.equals("simples")) {
             tokenizer = new SimpleTokenizer();
-            
-            tokenizer.tokenize(documentos);
-            System.out.println(tokenizer.getTermos());
+        }
+        Runtime runtime = Runtime.getRuntime();
+        
+        Document doc = corpus.nextDocument();
+        //Document doc = null;
+        System.out.println("Starting block by block index");
+        while (doc != null) {
+            if ((runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (1024*0.85)) {
+                System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
+                System.out.println("Saving Block");
+                indexer.saveBlock();
+                System.gc();
+                System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
+            }
+            //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
+            indexer.addToSPIMIIndex(tokenizer.tokenize(doc));
+            doc = corpus.nextDocument();
+            //System.out.println(doc);
+        }
+        int b = indexer.saveBlock();
+        System.out.println("Saving Last Block");
+        try {
+            indexer.mergeBlocks(b);
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-   
+
 }

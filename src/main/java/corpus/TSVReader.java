@@ -9,66 +9,53 @@ import documents.Document;
 import documents.TSVDocument;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+public class TSVReader implements CorpusReader {
 
-public class TSVReader implements CorpusReader{
-    
     List<Document> documents;
+    int i;
+    BufferedReader br;
 
-    public TSVReader(String dir) {
-        this.documents = new ArrayList();
-        
+    public TSVReader(String dir) throws FileNotFoundException, IOException {
         File file = checkFile(dir);
-        readFile(file);
-        
-        
+        br = new BufferedReader(new FileReader(file));
+        i = 0;
+        //ler primeira linha
+        br.readLine();
+
     }
-    
+
     private File checkFile(String dir) {
         File file = new File(dir);
         if (file.isDirectory() || file.exists()) {
             return file;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("O diretório fornecido não existe.");
         }
     }
-    
-    public void readFile(File file) {
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String current;
-            int i = 0;
-            String[] split;
-            while ((current = br.readLine()) != null) {
-                if (i == 0) {
-                    System.out.println(current);
-                } else {
-                    //5 , 12, 13
-                    split = current.split("\\t");
-                    // juntar os três atributos necessários -> o titulo, o review body e headline
-                    String docText = split[5] + " " + split[12] + " " + split[13];
-                    addDoc(new TSVDocument(i, docText));
-                   // System.out.println(Arrays.toString(split));
-                }
-                i++;
+    @Override
+    public Document nextDocument() {
+        try {
+            String current = br.readLine();
+            if (current == null) {
+                return null;
+            } else {
+                //5 , 12, 13
+                String[] split = current.split("\\t");
+                // juntar os três atributos necessários -> o titulo, o review body e headline
+                String docText = split[5] + " " + split[12] + " " + split[13];
+                return new TSVDocument(i++, docText);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(TSVReader.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    
-    public void addDoc(Document doc) {
-        documents.add(doc);
+        return null;
     }
 
-    public List<Document> getDocuments() {
-        return documents;
-    }
-    
-    
 }

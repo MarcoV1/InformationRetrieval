@@ -7,11 +7,11 @@ package tokenizer;
 
 import documents.Document;
 import java.util.List;
+import java.util.stream.Stream;
 import javafx.util.Pair;
 
 public interface Tokenizer {
     
-    public void tokenize(List<Document> lista);
+    public List<Pair<String, Integer>> tokenize(Document lista);
     
-    public List<Pair<String, Integer>> getTermos();
 }

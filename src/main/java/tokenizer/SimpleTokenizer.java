@@ -10,40 +10,26 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.util.Pair;
 
+public class SimpleTokenizer implements Tokenizer {
 
-public class SimpleTokenizer implements Tokenizer{
-
-    private List<Pair<String, Integer>> termos;
-
-    public SimpleTokenizer() {
-        termos = new ArrayList();
-    }
-    
     @Override
-    public void tokenize(List<Document> lista) {
-        
+    public List<Pair<String, Integer>> tokenize(Document doc) {
+        List<Pair<String, Integer>> termos = new ArrayList();
         // ler documentos ou lista de documentos
-        for (Document doc : lista) {
-           String text = doc.getText();
-           // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
-           String alpText = text.replaceAll("[^A-Za-z ]", "").toLowerCase();
-           String[] textArray = alpText.split(" ");
-           
-           for( String s : textArray) {
-               String temp = s.trim();
-               if (temp.length() >= 3) {
-                   // adicionar os termos
-                   termos.add(new Pair<String, Integer>(temp, doc.getId()));
-               }
-           }
-        }
-        
-       
-   
-    }
+        String text = doc.getText();
+        // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
+        String alpText = text.replaceAll("[^A-Za-z ]", "").toLowerCase();
+        String[] textArray = alpText.split(" ");
 
-    public List<Pair<String, Integer>> getTermos() {
+        for (String s : textArray) {
+            String temp = s.trim();
+            if (temp.length() >= 3) {
+                // adicionar os termos
+                termos.add(new Pair<>(temp, doc.getId()));
+            }
+        }
+
         return termos;
+
     }
-    
 }
