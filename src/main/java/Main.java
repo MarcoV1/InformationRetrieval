@@ -63,7 +63,7 @@ public class Main {
                 System.gc();
                 System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
             }
-            indexer.addToSPIMIIndex(tokenizer.tokenize(doc));
+            indexer.addToSPIMIIndex(tokenizer.tokenize(doc), doc.getId());
             doc = corpus.nextDocument();
             //System.out.println(doc);
         }
