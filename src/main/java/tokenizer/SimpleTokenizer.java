@@ -13,8 +13,8 @@ import javafx.util.Pair;
 public class SimpleTokenizer implements Tokenizer {
 
     @Override
-    public List<Pair<String, Integer>> tokenize(Document doc) {
-        List<Pair<String, Integer>> termos = new ArrayList();
+    public List<String> tokenize(Document doc) {
+        List<String> termos = new ArrayList<>();
         // ler documentos ou lista de documentos
         String text = doc.getText();
         // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
@@ -25,7 +25,7 @@ public class SimpleTokenizer implements Tokenizer {
             String temp = s.trim();
             if (temp.length() >= 3) {
                 // adicionar os termos
-                termos.add(new Pair<>(temp, doc.getId()));
+                termos.add(temp);
             }
         }
 
