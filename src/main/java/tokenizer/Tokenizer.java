@@ -7,7 +7,6 @@ package tokenizer;
 
 import documents.Document;
 import java.util.List;
-import javafx.util.Pair;
 
 public interface Tokenizer {
     

@@ -35,12 +35,12 @@ public class ImprovedTokenizer implements Tokenizer{
         text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n]", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
-        int j = 0; boolean checked = true;
+        int j; boolean checked = true;
 
         String[] textArray = text.split(" ");
         for (String s : textArray) {
             String temp = s.trim();
-            if (temp.length() >= 3 && temp.length() < 40) {        
+            if (temp.length() >= 3 && temp.length() < 30) {        
                 // ignorar termos com sequencias sucessivas de caracteres iguais: e.g. aaaaaa
                 j = 0;
                 for (int i = 0; i < temp.length(); i++) {
@@ -70,8 +70,7 @@ public class ImprovedTokenizer implements Tokenizer{
                         }
                         else { // adicionar o resto
                             tokens.add(temp.replaceAll("-", ""));
-                        }
-                        
+                        }   
                     }
                     else if (temp.contains(".")) {
                         // caso seja um numero real: 14.67
@@ -88,7 +87,7 @@ public class ImprovedTokenizer implements Tokenizer{
                               }
                         }
                     }
-                    else {
+                    else { // caso nenhuma condição seja despoletada, adicionar token à lista
                         tokens.add(temp);
                     }
                 }
@@ -104,18 +103,11 @@ public class ImprovedTokenizer implements Tokenizer{
         }
         return tokens; 
     }
-    
-    public static void main(String[] args) {
-        
-       // System.out.println(recursiveNegativeNumberCheck("----3"));
-    }
-    
-    public  String recursiveNegativeNumberCheck(String temp) {
-        
+
+    public  String recursiveNegativeNumberCheck(String temp) {   
         if (temp.charAt(0) == '-') {
             return recursiveNegativeNumberCheck(temp.substring(1, temp.length()));
         }
-        
         return temp;
     }
     
