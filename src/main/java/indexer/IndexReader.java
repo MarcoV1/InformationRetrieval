@@ -13,18 +13,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author marco
- */
 public class IndexReader {
 
     public IndexReader() {
     }
 
-    public void readFile(File f) {
-
-    }
 
     public static void main(String[] args) {
         BufferedReader br = null;

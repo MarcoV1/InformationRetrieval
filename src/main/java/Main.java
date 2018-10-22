@@ -45,11 +45,9 @@ public class Main {
      
             if (typeTokenizer.equals("s")) {
                 tokenizer = new ImprovedTokenizer();
-                //tokenizer.tokenize(documentos);
             }
             else if (typeTokenizer.equals("c")) {
                 tokenizer = new ImprovedTokenizer(new englishStemmer());
-               // tokenizer.tokenize(documentos);
             }
         }
         Runtime runtime = Runtime.getRuntime();
