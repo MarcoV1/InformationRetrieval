@@ -112,7 +112,7 @@ public class Indexer {
         }
     }
 
-    public void mergeBlocks(int num, int maxMem) throws IOException {
+    public void mergeBlocks(int num) throws IOException {
         Map<String, Map<Integer, Integer>> temp_index = new TreeMap<>();
         File[] blocks = new File[num];
         BufferedReader[] readers = new BufferedReader[num];
@@ -167,7 +167,7 @@ public class Indexer {
                 System.arraycopy(current, lowest + 1, current, lowest, current.length - lowest - 1);
                 num--;
             }
-            if ((runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (maxMem * 0.80)) {
+            if ((runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (1024 * 0.85)) {
                 System.out.println("Writing final index block");
                 clearCache(previous, temp_index);
                 Map<String, Map<Integer, Integer>> new_index = new TreeMap<>();
