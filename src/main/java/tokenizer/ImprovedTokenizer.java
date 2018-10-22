@@ -35,7 +35,7 @@ public class ImprovedTokenizer implements Tokenizer{
         text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n]", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
-        String sucCar; int j = 0; boolean checked = true;
+        int j = 0; boolean checked = true;
 
         String[] textArray = text.split(" ");
         for (String s : textArray) {
@@ -60,14 +60,18 @@ public class ImprovedTokenizer implements Tokenizer{
                     }
                     else if (temp.contains("-")) {
                         // remover termos que comecem por - e de seguida uma letra
-                        if(temp.length() > 1 && temp.startsWith("-") && Character.isLetter(temp.charAt(1))) {
-                            tokens.add(temp.substring(0, temp.length()));
+                        if(temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
+                            tokens.add(temp.substring(1, temp.length()));
+                        }
+                        else if (temp.matches(".*\\d+.*")) {
+                            // para termos que tenham e.g. ---2, mete-se só -2
+                            temp = recursiveNegativeNumberCheck(temp);
+                            tokens.add(temp.replaceAll(".", ""));
                         }
                         else { // adicionar o resto
                             tokens.add(temp.replaceAll("-", ""));
                         }
-                        // para termos que tenham e.g. --2, mete-se só -2
-                        // se calhar usar recursividade?
+                        
                     }
                     else if (temp.contains(".")) {
                         // caso seja um numero real: 14.67
@@ -99,6 +103,20 @@ public class ImprovedTokenizer implements Tokenizer{
             tokens = useStemmer(tokens);
         }
         return tokens; 
+    }
+    
+    public static void main(String[] args) {
+        
+       // System.out.println(recursiveNegativeNumberCheck("----3"));
+    }
+    
+    public  String recursiveNegativeNumberCheck(String temp) {
+        
+        if (temp.charAt(0) == '-') {
+            return recursiveNegativeNumberCheck(temp.substring(1, temp.length()));
+        }
+        
+        return temp;
     }
     
     public List<String> useStemmer(List<String> tokens) {
