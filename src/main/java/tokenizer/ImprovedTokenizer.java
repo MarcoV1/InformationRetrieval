@@ -32,7 +32,7 @@ public class ImprovedTokenizer implements Tokenizer{
     public List<String> tokenize(Document doc) {
     
         String text = doc.getText(); 
-        text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n]", "").toLowerCase();
+        text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n&]<>", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
         int j; boolean checked;
@@ -51,7 +51,7 @@ public class ImprovedTokenizer implements Tokenizer{
                         // j -> numero de sucessoes
                         j++;
                         if (j > 3) {
-                            System.out.println(temp);
+                            //System.out.println(temp);
                             checked = false;
                             break;
                         }
@@ -60,7 +60,9 @@ public class ImprovedTokenizer implements Tokenizer{
                 if (checked) { // caso não tenha os tais caracteres sucessivos
                     // encurtar termos que tenham @, por exemplo mails
                     if (temp.contains("@")) {
+                        try {
                         tokens.add(temp.split("@")[0]);
+                        } catch (Exception e) {}
                     } else if (temp.contains("-")) {
                         // remover termos que comecem por - e de seguida uma letra
                         if (temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
