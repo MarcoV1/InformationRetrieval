@@ -44,11 +44,14 @@ public class ImprovedTokenizer implements Tokenizer{
             if (temp.length() >= 3 && temp.length() < 30) {        
                 // ignorar termos com sequencias sucessivas de caracteres iguais: e.g. aaaaaa
                 j = 0;
-                for (int i = 0; i < temp.length(); i++) {
-                    if (temp.charAt(i) == temp.charAt(i+1)) {
+                // caso sejam digitos, ignorar se é ou não sequência
+                for (int i = 0; i < temp.length() - 1; i++) {
+                    if (temp.charAt(i) == temp.charAt(i+1) && 
+                            Character.isLetter(temp.charAt(i)) && Character.isLetter(temp.charAt(i)) ) {
                         // j -> numero de sucessoes
                         j++;
                         if (j > 3) {
+                            System.out.println(temp);
                             checked = false;
                             break;
                         }
@@ -58,42 +61,55 @@ public class ImprovedTokenizer implements Tokenizer{
                     // encurtar termos que tenham @, por exemplo mails
                     if (temp.contains("@")) {
                         tokens.add(temp.split("@")[0]);
-                    }
-                    else if (temp.contains("-")) {
+                    } else if (temp.contains("-")) {
                         // remover termos que comecem por - e de seguida uma letra
-                        if(temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
+                        if (temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
                             tokens.add(temp.substring(1, temp.length()));
-                        }
-                        else if (temp.matches(".*\\d+.*")) {
+                        } else if (temp.matches(".*\\d+.*")) {
                             // para termos que tenham e.g. ---2, mete-se só -2
                             temp = recursiveNegativeNumberCheck(temp);
                             tokens.add(temp.replaceAll(".", ""));
-                        }
-                        else { // adicionar o resto
+                        } else { // adicionar o resto
                             tokens.add(temp.replaceAll("-", ""));
-                        }   
-                    }
-                    else if (temp.contains(".")) {
+                        }
+                    } else if (temp.contains(".")) {
+                        // se o 1º caracter for '.' ignorar
+                        do { if (temp.charAt(0) == '.') {
+                                temp = temp.substring(1, temp.length());
+                                if (temp.length() == 0) {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        } while (true);
+                        if (temp.length() <= 3 ) {
+                        } 
+                        else if (!temp.contains(".")) {
+                            tokens.add(temp.replaceAll("[-]", ""));
+                        }
                         // caso seja um numero real: 14.67
-                        if (Character.isDigit(temp.charAt(temp.indexOf(".") - 1 ))
-                                && Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
-                              // remover casos extra de '-' 
-                              temp = temp.replaceAll("-", "");
-                              if ( (temp.charAt(temp.length() - 1) + "").matches(".")) {
-                                  // caso o termo acabe em '.'
-                                  tokens.add(temp.substring(0, temp.length()-1));
-                              }
-                              else {
-                                  tokens.add(temp.replaceAll(".", ""));
-                              }
+                        else if (Character.isDigit(temp.charAt(temp.indexOf(".") - 1))) {
+                            // condição por causa de indexes out of range
+                            if (temp.length() > temp.indexOf('.') + 1) {
+                                if (Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
+                                    // remover casos extra de '-'
+                                    tokens.add(temp.replaceAll("-", ""));
+                                }
+                            } else if ((temp.charAt(temp.length() - 1) + "").matches(".")) {
+                                // caso o termo acabe em '.'
+                                tokens.add(temp.substring(0, temp.length() - 1));
+                            }
+                        } else {
+                            tokens.add(temp.replaceAll(".", ""));
                         }
                     }
-                    else { // caso nenhuma condição seja despoletada, adicionar token à lista
-                        tokens.add(temp);
-                    }
+                 else { // caso nenhuma condição seja despoletada, adicionar token à lista
+                    tokens.add(temp);
                 }
             }
         }
+    }
 
         // remover stop words dos tokens
         tokens = filterWithWordList(tokens, stopWordList);
