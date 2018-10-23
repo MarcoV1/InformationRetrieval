@@ -31,24 +31,69 @@ public class ImprovedTokenizer implements Tokenizer{
     @Override
     public List<String> tokenize(Document doc) {
     
-        // falta não filtar termos com "-" ou "."  
-        String text = doc.getText();
-        //text = text.replaceAll("[*+/)\"\\|(,:;'?!\n]", "");
+        String text = doc.getText(); 
+        text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n]", "").toLowerCase();
 
-         List<String> tokens = new ArrayList<>();
-         
-        // substituir tudo o que não caracteres alfabeticos, e meter tudo para minusculo
-        String alpText = text.replaceAll("[^A-Za-z ]", "").toLowerCase();
-        String[] textArray = alpText.split(" ");
+        List<String> tokens = new ArrayList<>();       
+        int j; boolean checked;
+
+        String[] textArray = text.split(" ");
         for (String s : textArray) {
+            checked = true;
             String temp = s.trim();
-            if (temp.length() >= 3) {
-                // adicionar os termos
-                tokens.add(temp);
+            if (temp.length() >= 3 && temp.length() < 30) {        
+                // ignorar termos com sequencias sucessivas de caracteres iguais: e.g. aaaaaa
+                j = 0;
+                for (int i = 0; i < temp.length(); i++) {
+                    if (temp.charAt(i) == temp.charAt(i+1)) {
+                        // j -> numero de sucessoes
+                        j++;
+                        if (j > 3) {
+                            checked = false;
+                            break;
+                        }
+                    }  
+                }
+                if (checked) { // caso não tenha os tais caracteres sucessivos
+                    // encurtar termos que tenham @, por exemplo mails
+                    if (temp.contains("@")) {
+                        tokens.add(temp.split("@")[0]);
+                    }
+                    else if (temp.contains("-")) {
+                        // remover termos que comecem por - e de seguida uma letra
+                        if(temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
+                            tokens.add(temp.substring(1, temp.length()));
+                        }
+                        else if (temp.matches(".*\\d+.*")) {
+                            // para termos que tenham e.g. ---2, mete-se só -2
+                            temp = recursiveNegativeNumberCheck(temp);
+                            tokens.add(temp.replaceAll(".", ""));
+                        }
+                        else { // adicionar o resto
+                            tokens.add(temp.replaceAll("-", ""));
+                        }   
+                    }
+                    else if (temp.contains(".")) {
+                        // caso seja um numero real: 14.67
+                        if (Character.isDigit(temp.charAt(temp.indexOf(".") - 1 ))
+                                && Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
+                              // remover casos extra de '-' 
+                              temp = temp.replaceAll("-", "");
+                              if ( (temp.charAt(temp.length() - 1) + "").matches(".")) {
+                                  // caso o termo acabe em '.'
+                                  tokens.add(temp.substring(0, temp.length()-1));
+                              }
+                              else {
+                                  tokens.add(temp.replaceAll(".", ""));
+                              }
+                        }
+                    }
+                    else { // caso nenhuma condição seja despoletada, adicionar token à lista
+                        tokens.add(temp);
+                    }
+                }
             }
         }
-
-    //    System.out.println(tokens);
 
         // remover stop words dos tokens
         tokens = filterWithWordList(tokens, stopWordList);
@@ -60,14 +105,14 @@ public class ImprovedTokenizer implements Tokenizer{
         return tokens; 
     }
     
+    public static  String recursiveNegativeNumberCheck(String temp) {   
+        if (temp.charAt(0) == '-') {
+            return recursiveNegativeNumberCheck(temp.substring(1, temp.length()));
+        }
+        return "-" + temp;
+    }
+    
     public List<String> useStemmer(List<String> tokens) {
-//        int value;
-//        for (int i = 0; i < tokens.size(); i++) {
-//            value = tokens.get(i).getValue();
-//            stemmer.setCurrent(tokens.get(i).getKey());
-//            stemmer.stem();
-//            tokens.set(i, new Pair<>(stemmer.getCurrent(), value));
-//        }
         int i = 0;
         for (String s : tokens) {
             stemmer.setCurrent(s);
@@ -99,21 +144,7 @@ public class ImprovedTokenizer implements Tokenizer{
     }
     
     public List<String> filterWithWordList(List<String> tokens, List<String> wordList) {   
-
-//        List<Pair<String, Integer>> termos = new ArrayList();
-//        Iterator<Pair<String, Integer>> it = tokens.iterator();
-//        while(it.hasNext()) {
-//            Pair<String, Integer> termo = it.next();
-//            if(!wordList.contains(termo.getKey())) {
-//                termos.add(termo);      
-//            }
-//        }
         tokens.removeAll(wordList);
         return tokens;
     }
-
-    public List<String> getStopWordList() {
-        return stopWordList;
-    }
-
 }

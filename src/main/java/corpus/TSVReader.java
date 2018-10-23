@@ -31,7 +31,8 @@ public class TSVReader implements CorpusReader {
 
     }
 
-    private File checkFile(String dir) {
+    @Override
+    public File checkFile(String dir) {
         File file = new File(dir);
         if (file.isDirectory() || file.exists()) {
             return file;

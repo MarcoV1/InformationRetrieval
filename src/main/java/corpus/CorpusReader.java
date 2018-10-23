@@ -6,10 +6,10 @@
 package corpus;
 
 import documents.Document;
-import java.util.List;
-
+import java.io.File;
 
 public interface CorpusReader {
     
     public Document nextDocument();
+    public File checkFile(String dir);
 }
