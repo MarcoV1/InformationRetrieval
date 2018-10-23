@@ -35,10 +35,11 @@ public class ImprovedTokenizer implements Tokenizer{
         text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n]", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
-        int j; boolean checked = true;
+        int j; boolean checked;
 
         String[] textArray = text.split(" ");
         for (String s : textArray) {
+            checked = true;
             String temp = s.trim();
             if (temp.length() >= 3 && temp.length() < 30) {        
                 // ignorar termos com sequencias sucessivas de caracteres iguais: e.g. aaaaaa
@@ -47,7 +48,7 @@ public class ImprovedTokenizer implements Tokenizer{
                     if (temp.charAt(i) == temp.charAt(i+1)) {
                         // j -> numero de sucessoes
                         j++;
-                        if (j > 4) {
+                        if (j > 3) {
                             checked = false;
                             break;
                         }
@@ -103,12 +104,12 @@ public class ImprovedTokenizer implements Tokenizer{
         }
         return tokens; 
     }
-
-    public  String recursiveNegativeNumberCheck(String temp) {   
+    
+    public static  String recursiveNegativeNumberCheck(String temp) {   
         if (temp.charAt(0) == '-') {
             return recursiveNegativeNumberCheck(temp.substring(1, temp.length()));
         }
-        return temp;
+        return "-" + temp;
     }
     
     public List<String> useStemmer(List<String> tokens) {
