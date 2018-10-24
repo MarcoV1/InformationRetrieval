@@ -32,7 +32,8 @@ public class ImprovedTokenizer implements Tokenizer{
     public List<String> tokenize(Document doc) {
     
         String text = doc.getText(); 
-        text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n&]<>", "").toLowerCase();
+        text = text.replaceAll("[^A-Za-z \\.]", "").toLowerCase();
+        //text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n&]<>", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
         int j; boolean checked;
@@ -41,7 +42,7 @@ public class ImprovedTokenizer implements Tokenizer{
         for (String s : textArray) {
             checked = true;
             String temp = s.trim();
-            if (temp.length() >= 3 && temp.length() < 30) {        
+            if (temp.length() >= 3 && temp.length() < 30) {    
                 // ignorar termos com sequencias sucessivas de caracteres iguais: e.g. aaaaaa
                 j = 0;
                 // caso sejam digitos, ignorar se é ou não sequência
@@ -61,18 +62,31 @@ public class ImprovedTokenizer implements Tokenizer{
                     // encurtar termos que tenham @, por exemplo mails
                     if (temp.contains("@")) {
                         try {
+                            //System.out.println("2 "+temp+ " " + temp.split("@")[0]);
                         tokens.add(temp.split("@")[0]);
                         } catch (Exception e) {}
                     } else if (temp.contains("-")) {
                         // remover termos que comecem por - e de seguida uma letra
                         if (temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
-                            tokens.add(temp.substring(1, temp.length()));
+                            temp = temp.substring(1, temp.length());
+                            if (temp.length() >= 3) {
+                                //System.out.println("3 "+ temp);
+                                tokens.add(temp);
+                            }
                         } else if (temp.matches(".*\\d+.*")) {
                             // para termos que tenham e.g. ---2, mete-se só -2
                             temp = recursiveNegativeNumberCheck(temp);
-                            tokens.add(temp.replaceAll(".", ""));
+                            temp = temp.replaceAll(".", "");
+                            if (temp.length() >= 1) {
+                                System.out.println(temp);
+                                tokens.add(temp.replaceAll(".", ""));
+                            }
                         } else { // adicionar o resto
-                            tokens.add(temp.replaceAll("-", ""));
+                            temp = temp.replaceAll("-", "");
+                            if (temp.length() >= 1) {
+                                System.out.println(temp);
+                                tokens.add(temp.replaceAll("-", ""));
+                            }
                         }
                     } else if (temp.contains(".")) {
                         // se o 1º caracter for '.' ignorar
@@ -96,17 +110,23 @@ public class ImprovedTokenizer implements Tokenizer{
                             if (temp.length() > temp.indexOf('.') + 1) {
                                 if (Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
                                     // remover casos extra de '-'
-                                    tokens.add(temp.replaceAll("-", ""));
+                                    temp = temp.replaceAll("-", "");
+                                    if (temp.length() >= 3)
+                                        tokens.add(temp.replaceAll("-", ""));
                                 }
                             } else if ((temp.charAt(temp.length() - 1) + "").matches(".")) {
                                 // caso o termo acabe em '.'
-                                tokens.add(temp.substring(0, temp.length() - 1));
+                                temp = temp.substring(0, temp.length() - 1);
+                                if (temp.length() >= 3)
+                                    tokens.add(temp);
                             }
                         } else {
-                            tokens.add(temp.replaceAll(".", ""));
+                            temp = temp.replaceAll(".", "");
+                            if (temp.length() >= 3)
+                                tokens.add(temp.replaceAll(".", ""));
                         }
                     }
-                 else { // caso nenhuma condição seja despoletada, adicionar token à lista
+                 else if (temp.length()> 3){ // caso nenhuma condição seja despoletada, adicionar token à lista
                     tokens.add(temp);
                 }
             }
