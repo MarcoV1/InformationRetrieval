@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.tartarus.snowball.SnowballStemmer;
 
@@ -102,15 +103,14 @@ public class ImprovedTokenizer implements Tokenizer{
                             if (temp.length() > temp.indexOf('.') + 1) {
                                 if (Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
                                     // remover casos extra de '-'
-                                    temp = temp.replaceAll("[-A-Za-z]", "");
-                                    if (temp.length() >= 3)
-                                        tokens.add(temp);
+                                    temp = temp.replaceAll("[A-Za-z -]", "");
+                                    if (temp.length() >= 3) {
+                                         if (temp.endsWith("."))
+                                             tokens.add(temp.substring(0, temp.length()-1));
+                                         else
+                                            tokens.add(temp);
+                                    }
                                 }
-                            } else if ((temp.charAt(temp.length() - 1) + "").matches(".")) {
-                                // caso o termo acabe em '.'
-                                temp = temp.substring(0, temp.length() - 1);
-                                if (temp.length() >= 3)
-                                    tokens.add(temp);
                             }
                         } else {
                             temp = temp.replaceAll(".", "");
