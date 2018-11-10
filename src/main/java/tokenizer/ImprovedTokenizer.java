@@ -32,7 +32,7 @@ public class ImprovedTokenizer implements Tokenizer{
     public List<String> tokenize(Document doc) {
     
         String text = doc.getText(); 
-        text = text.replaceAll("[^A-Za-z \\.]", "").toLowerCase();
+        text = text.replaceAll("[^A-Za-z0-9 \\.-]", "").toLowerCase();
         //text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n&]<>", "").toLowerCase();
 
         List<String> tokens = new ArrayList<>();       
@@ -52,57 +52,49 @@ public class ImprovedTokenizer implements Tokenizer{
                         // j -> numero de sucessoes
                         j++;
                         if (j > 3) {
-                            //System.out.println(temp);
                             checked = false;
                             break;
                         }
                     }  
                 }
                 if (checked) { // caso não tenha os tais caracteres sucessivos
-                    // encurtar termos que tenham @, por exemplo mails
-                    if (temp.contains("@")) {
-                        try {
-                            //System.out.println("2 "+temp+ " " + temp.split("@")[0]);
-                        tokens.add(temp.split("@")[0]);
-                        } catch (Exception e) {}
-                    } else if (temp.contains("-")) {
+
+                    if (temp.contains("-")) {
                         // remover termos que comecem por - e de seguida uma letra
                         if (temp.indexOf(0) == '-' && Character.isLetter(temp.charAt(1))) {
-                            temp = temp.substring(1, temp.length());
+                            temp = temp.substring(1, temp.length()).trim();
                             if (temp.length() >= 3) {
-                                //System.out.println("3 "+ temp);
                                 tokens.add(temp);
                             }
                         } else if (temp.matches(".*\\d+.*")) {
                             // para termos que tenham e.g. ---2, mete-se só -2
                             temp = recursiveNegativeNumberCheck(temp);
-                            temp = temp.replaceAll(".", "");
-                            if (temp.length() >= 1) {
-                                System.out.println(temp);
-                                tokens.add(temp.replaceAll(".", ""));
+                            temp = temp.replaceAll(".", "").trim();
+                            if (temp.length() >= 3) {
+                                tokens.add(temp);
                             }
                         } else { // adicionar o resto
-                            temp = temp.replaceAll("-", "");
-                            if (temp.length() >= 1) {
-                                System.out.println(temp);
-                                tokens.add(temp.replaceAll("-", ""));
+                            temp = temp.replaceAll("[-.]", "").trim();
+                            if (temp.length() >= 3) {
+                                tokens.add(temp);
                             }
                         }
                     } else if (temp.contains(".")) {
-                        // se o 1º caracter for '.' ignorar
-                        do { if (temp.charAt(0) == '.') {
+                        // se os primeiros caracteres forem '.' ignorar
+                        do {
+                            if (temp.charAt(0) == '.') {
                                 temp = temp.substring(1, temp.length());
                                 if (temp.length() == 0) {
                                     break;
                                 }
-                            } else {
+                            } else
                                 break;
-                            }
                         } while (true);
-                        if (temp.length() <= 3 ) {
-                        } 
-                        else if (!temp.contains(".")) {
-                            tokens.add(temp.replaceAll("[-]", ""));
+                        if (temp.length() <= 3) {
+                        } else if (!temp.contains(".")) {
+                            temp = temp.replaceAll("[-]", "").trim();
+                            if (temp.length() >= 3)
+                                tokens.add(temp);
                         }
                         // caso seja um numero real: 14.67
                         else if (Character.isDigit(temp.charAt(temp.indexOf(".") - 1))) {
@@ -110,9 +102,9 @@ public class ImprovedTokenizer implements Tokenizer{
                             if (temp.length() > temp.indexOf('.') + 1) {
                                 if (Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
                                     // remover casos extra de '-'
-                                    temp = temp.replaceAll("-", "");
+                                    temp = temp.replaceAll("[-A-Za-z]", "");
                                     if (temp.length() >= 3)
-                                        tokens.add(temp.replaceAll("-", ""));
+                                        tokens.add(temp);
                                 }
                             } else if ((temp.charAt(temp.length() - 1) + "").matches(".")) {
                                 // caso o termo acabe em '.'
@@ -123,16 +115,24 @@ public class ImprovedTokenizer implements Tokenizer{
                         } else {
                             temp = temp.replaceAll(".", "");
                             if (temp.length() >= 3)
-                                tokens.add(temp.replaceAll(".", ""));
+                                tokens.add(temp);
                         }
                     }
-                 else if (temp.length()> 3){ // caso nenhuma condição seja despoletada, adicionar token à lista
-                    tokens.add(temp);
-                }
+                    // encurtar termos que tenham @, por exemplo mails
+ /*                   else if (temp.contains("@")) {
+                        try {
+                            // adicionar emails, e.g. teste@ua.pt - adicionar só "teste"
+                            System.out.println("2 " + temp + " " + temp.split("@")[0]);
+                            tokens.add(temp.split("@")[0]);
+                        } catch (Exception e) {
+                        }*/
+                    //}
+                    else if (temp.length() > 3) { // caso nenhuma condição seja despoletada, adicionar token à lista
+                        tokens.add(temp);
+                    }
             }
         }
     }
-
         // remover stop words dos tokens
         tokens = filterWithWordList(tokens, stopWordList);
 
@@ -142,7 +142,8 @@ public class ImprovedTokenizer implements Tokenizer{
         }
         return tokens; 
     }
-    
+
+    // remover termos que usem vários '-' seguidos
     public static  String recursiveNegativeNumberCheck(String temp) {   
         if (temp.charAt(0) == '-') {
             return recursiveNegativeNumberCheck(temp.substring(1, temp.length()));

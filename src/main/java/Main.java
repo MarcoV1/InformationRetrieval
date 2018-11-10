@@ -19,7 +19,7 @@ public class Main {
         CorpusReader corpus = null;
         int maxMem = 0;
         try {
-            // src\main\java\text\amazon_reviews_us_Wireless_v1_00.tsv -xmx 256m
+            // src\main\java\text\amazon_reviews_us_Wireless_v1_00.tsv 256
             corpus = new TSVReader(args[0]);
 
         } catch (Exception ex) {
@@ -61,7 +61,7 @@ public class Main {
         System.out.println("Starting block by block index");
         while (doc != null) {
             if (checkMem(maxMem)) {
-                System.out.println("Saving Block");
+               // System.out.println("Saving Block");
                 indexer.saveBlock();
                 System.gc();
                 //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
@@ -71,7 +71,7 @@ public class Main {
             //System.out.println(doc);
         }
         int b = indexer.saveBlock();
-        System.out.println("Saving Last Block");
+        // System.out.println("Saving Last Block");
         try {
             indexer.mergeBlocks(b);
         } catch (IOException ex) {
