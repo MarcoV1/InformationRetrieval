@@ -21,6 +21,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Pair;
+import weights.DocumentWeighter;
 
 public class Indexer {
 
@@ -28,6 +29,8 @@ public class Indexer {
     private File outputFile = new File("index.txt");
     private BufferedWriter bw;
     private int currentBlock, inmem;
+    private DocumentWeighter weighter;
+    private Map<String, Map<Integer, Double>> scores;
 
     public Indexer() {
         try {
@@ -36,6 +39,8 @@ public class Indexer {
             Logger.getLogger(Indexer.class.getName()).log(Level.SEVERE, null, ex);
         }
         index = new HashMap<>();
+        weighter = new DocumentWeighter();
+        scores = new HashMap();
         currentBlock = 1;
         inmem = 0;
     }
@@ -55,15 +60,21 @@ public class Indexer {
         }
         return index;
     }
+    
+    public void calculateTF() {
+        scores = weighter.calculateTF(index);
+    }
 
     public int saveBlock() {
         File outputFile = new File("index_block_" + currentBlock++ + ".txt");
-        SortedSet<String> sorted = new TreeSet<>(index.keySet());
+        SortedSet<String> sorted = new TreeSet<>(scores.keySet());
+        
+        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {
             for (String termo : sorted) {
                 bw.write(termo);
-                for (Integer i : index.get(termo).keySet()) {
-                    String w = "," + i + ":" + index.get(termo).get(i);
+                for (Integer i : scores.get(termo).keySet()) {
+                    String w = "," + i + ":" + scores.get(termo).get(i);
                     bw.write(w);
                 }
                 bw.newLine();
@@ -71,9 +82,7 @@ public class Indexer {
             }
             bw.close();
         } catch (IOException e) {
-
             e.printStackTrace();
-
         }
         outputFile = null;
         index = null;
@@ -84,7 +93,7 @@ public class Indexer {
     // Math.pow(1024, 8)
     // 4gb 4294967296
     public void addToSPIMIIndex(List<String> list, int id) {
-        //System.out.println(Runtime.getRuntime().freeMemory()+ " "+ 1024*256);
+        
         for (String x : list) {
             if (!index.containsKey(x)) {
                 index.put(x, new HashMap<>());
@@ -96,7 +105,6 @@ public class Indexer {
                 index.get(x).put(id, cur + 1);
             }
         }
-
     }
 
     private File checkFile(String dir) {
@@ -109,7 +117,7 @@ public class Indexer {
     }
 
     public void mergeBlocks(int num) throws IOException {
-        Map<String, Map<Integer, Integer>> temp_index = new TreeMap<>();
+        Map<String, Map<Integer, Double>> temp_index = new TreeMap<>();
         File[] blocks = new File[num];
         BufferedReader[] readers = new BufferedReader[num];
         String[][] current = new String[num][];
@@ -140,14 +148,24 @@ public class Indexer {
             if (!temp_index.containsKey(current[lowest][0])) {
                 temp_index.put(current[lowest][0], new HashMap<>());
             }
+//            for (int i = 1; i < current[lowest].length; i++) {
+//                if (!temp_index.get(current[lowest][0]).containsKey(Integer.parseInt(current[lowest][i].split(":")[0]))) {
+//                    temp_index.get(current[lowest][0]).put(Integer.parseInt(current[lowest][i].split(":")[0]), Integer.parseInt(current[lowest][i].split(":")[1]));
+//                } else {
+//                    int cur = temp_index.get(current[lowest][0]).get(Integer.parseInt(current[lowest][i].split(":")[0]));
+//                    temp_index.get(current[lowest][0]).put(Integer.parseInt(current[lowest][i].split(":")[0]), cur + Integer.parseInt(current[lowest][i].split(":")[1]));
+//                }
+//            }
+
             for (int i = 1; i < current[lowest].length; i++) {
                 if (!temp_index.get(current[lowest][0]).containsKey(Integer.parseInt(current[lowest][i].split(":")[0]))) {
-                    temp_index.get(current[lowest][0]).put(Integer.parseInt(current[lowest][i].split(":")[0]), Integer.parseInt(current[lowest][i].split(":")[1]));
+                    temp_index.get(current[lowest][0]).put(Integer.parseInt(current[lowest][i].split(":")[0]), Double.parseDouble(current[lowest][i].split(":")[1]));
                 } else {
-                    int cur = temp_index.get(current[lowest][0]).get(Integer.parseInt(current[lowest][i].split(":")[0]));
+                    double cur = temp_index.get(current[lowest][0]).get(Integer.parseInt(current[lowest][i].split(":")[0]));
                     temp_index.get(current[lowest][0]).put(Integer.parseInt(current[lowest][i].split(":")[0]), cur + Integer.parseInt(current[lowest][i].split(":")[1]));
                 }
             }
+            
             //extract next
             String previous = current[lowest][0];
             try {
@@ -180,7 +198,6 @@ public class Indexer {
         int res = 0;
         for (int i = 0; i < len; i++) {
             try {
-                //
                 if (current[i][0].compareTo(current[res][0]) < 0) {
                     res = i;
                 }
@@ -201,10 +218,10 @@ public class Indexer {
         return res;
     }
 
-    private void clearCache(String previous, Map<String, Map<Integer, Integer>> temp_index) {
+    private void clearCache(String previous, Map<String, Map<Integer, Double>> temp_index) {
 
         SortedSet<String> sorted = new TreeSet<>(temp_index.keySet());
-        Map<String, Map<Integer, Integer>> new_index = new TreeMap<>();
+        Map<String, Map<Integer, Double>> new_index = new TreeMap<>();
         for (String termo : sorted) {
             if (previous != null && termo.compareTo(previous) > 0) {
                 new_index.put(termo, temp_index.get(termo));
@@ -235,4 +252,10 @@ public class Indexer {
 
     }
 
+    public Map<String, Map<Integer, Integer>> getIndex() {
+        return index;
+    }
+
+    
+    
 }

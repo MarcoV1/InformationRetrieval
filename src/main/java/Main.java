@@ -47,9 +47,8 @@ public class Main {
             System.out.println("Com ou sem stemmer? (c/s)");
             do {
                 typeTokenizer = sc.nextLine().toLowerCase();
-
             } while (!typeTokenizer.equals("c") && !typeTokenizer.equals("s"));
-
+            
             if (typeTokenizer.equals("s")) {
                 tokenizer = new ImprovedTokenizer();
             } else if (typeTokenizer.equals("c")) {
@@ -61,22 +60,26 @@ public class Main {
         System.out.println("Starting block by block index");
         while (doc != null) {
             if (checkMem(maxMem)) {
-               // System.out.println("Saving Block");
                 indexer.saveBlock();
                 System.gc();
-                //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
             }
+            
             indexer.addToSPIMIIndex(tokenizer.tokenize(doc), doc.getId());
+            
             doc = corpus.nextDocument();
-            //System.out.println(doc);
         }
+        
+        indexer.calculateTF();
+                
         int b = indexer.saveBlock();
-        // System.out.println("Saving Last Block");
+        
         try {
             indexer.mergeBlocks(b);
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
     }
 
     private static boolean checkMem(int maxMem) {
