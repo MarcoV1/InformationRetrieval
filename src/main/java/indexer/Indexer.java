@@ -12,8 +12,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -31,6 +33,7 @@ public class Indexer {
     private int currentBlock, inmem;
     private DocumentWeighter weighter;
     private Map<String, Map<Integer, Double>> scores;
+    private Map<Integer, List<String>> doc_terms;
 
     public Indexer() {
         try {
@@ -39,7 +42,7 @@ public class Indexer {
             Logger.getLogger(Indexer.class.getName()).log(Level.SEVERE, null, ex);
         }
         index = new HashMap<>();
-        weighter = new DocumentWeighter();
+        doc_terms = new HashMap();
         scores = new HashMap();
         currentBlock = 1;
         inmem = 0;
@@ -47,21 +50,24 @@ public class Indexer {
 
     public Map<String, Map<Integer, Integer>> index(List<Pair<String, Integer>> termos) {
         Map<String, Map<Integer, Integer>> index = new HashMap<>();
-        for (Pair<String, Integer> x : termos) {
+        termos.stream().map((x) -> {
             if (!index.containsKey(x.getKey())) {
                 index.put(x.getKey(), new HashMap<>());
             }
+            return x;
+        }).forEachOrdered((x) -> {
             if (!index.get(x.getKey()).containsKey(x.getValue())) {
                 index.get(x.getKey()).put(x.getValue(), 1);
             } else {
                 int cur = index.get(x.getKey()).get(x.getValue());
                 index.get(x.getKey()).put(x.getValue(), cur + 1);
             }
-        }
+        });
         return index;
     }
     
     public void calculateTF() {
+        weighter = new DocumentWeighter(doc_terms);
         scores = weighter.calculateTF(index);
     }
 
@@ -69,12 +75,12 @@ public class Indexer {
         File outputFile = new File("index_block_" + currentBlock++ + ".txt");
         SortedSet<String> sorted = new TreeSet<>(scores.keySet());
         
-        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {
             for (String termo : sorted) {
                 bw.write(termo);
-                for (Integer i : scores.get(termo).keySet()) {
-                    String w = "," + i + ":" + scores.get(termo).get(i);
+                for (Integer i : scores.get(termo).keySet()) {              
+                    // locale.us é usado para formatar os doubles com '.' e não ','
+                    String w = "," + i + ":" + String.format(Locale.US, "%.3f", scores.get(termo).get(i));
                     bw.write(w);
                 }
                 bw.newLine();
@@ -93,6 +99,8 @@ public class Indexer {
     // Math.pow(1024, 8)
     // 4gb 4294967296
     public void addToSPIMIIndex(List<String> list, int id) {
+        
+        doc_terms.put(id, list);
         
         for (String x : list) {
             if (!index.containsKey(x)) {
