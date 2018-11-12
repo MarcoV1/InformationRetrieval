@@ -3,6 +3,7 @@ import corpus.CorpusReader;
 import corpus.TSVReader;
 import documents.Document;
 import indexer.Indexer;
+import indexer.WeightedIndexer;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -32,7 +33,7 @@ public class Main {
             System.out.println("Usage: target_file [max_memory(MB)] " + args[1]);
         }
         Tokenizer tokenizer = null;
-        Indexer indexer = new Indexer();
+        WeightedIndexer indexer = new WeightedIndexer();
 
         Scanner sc = new Scanner(System.in);
         System.out.println("Tipo de tokenizer a ser usado: \n>Simples\n>Improved");

@@ -5,6 +5,14 @@
  */
 package documents;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public abstract class Document {
     
@@ -36,5 +44,4 @@ public abstract class Document {
     public String toString() {
         return "Document: \n" + "id=" + id + "\ntext=" + text;
     }
-    
 }
