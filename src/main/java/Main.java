@@ -61,7 +61,7 @@ public class Main {
         System.out.println("Starting block by block index");
         while (doc != null) {
             if (checkMem(maxMem)) {
-               // System.out.println("Saving Block");
+                System.out.println("Saving Block");
                 indexer.saveBlock();
                 System.gc();
                 //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
@@ -71,7 +71,7 @@ public class Main {
             //System.out.println(doc);
         }
         int b = indexer.saveBlock();
-        // System.out.println("Saving Last Block");
+        System.out.println("Saving Last Block");
         try {
             indexer.mergeBlocks(b);
         } catch (IOException ex) {
@@ -83,7 +83,7 @@ public class Main {
         Runtime runtime = Runtime.getRuntime();
         //System.out.println(runtime.totalMemory()/ 1000000 + "  " + runtime.freeMemory()/ 1000000);
         if (maxMem > 0) {
-            return (runtime.totalMemory()/1000000 >= maxMem && (runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (maxMem * 0.80));
+            return (runtime.totalMemory() / 1000000 >= maxMem && (runtime.totalMemory() - runtime.freeMemory()) / 1000000 >= (maxMem * 0.80));
         } else {
             return (runtime.freeMemory() / runtime.totalMemory() < 0.20);
         }

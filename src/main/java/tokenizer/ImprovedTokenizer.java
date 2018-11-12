@@ -49,7 +49,7 @@ public class ImprovedTokenizer implements Tokenizer{
                 // caso sejam digitos, ignorar se é ou não sequência
                 for (int i = 0; i < temp.length() - 1; i++) {
                     if (temp.charAt(i) == temp.charAt(i+1) && 
-                            Character.isLetter(temp.charAt(i)) && Character.isLetter(temp.charAt(i)) ) {
+                            Character.isLetter(temp.charAt(i))) {
                         // j -> numero de sucessoes
                         j++;
                         if (j > 3) {
@@ -96,22 +96,6 @@ public class ImprovedTokenizer implements Tokenizer{
                             temp = temp.replaceAll("[-]", "").trim();
                             if (temp.length() >= 3)
                                 tokens.add(temp);
-                        }
-                        // caso seja um numero real: 14.67
-                        else if (Character.isDigit(temp.charAt(temp.indexOf(".") - 1))) {
-                            // condição por causa de indexes out of range
-                            if (temp.length() > temp.indexOf('.') + 1) {
-                                if (Character.isDigit(temp.charAt(temp.indexOf(".") + 1))) {
-                                    // remover casos extra de '-'
-                                    temp = temp.replaceAll("[A-Za-z -]", "");
-                                    if (temp.length() >= 3) {
-                                         if (temp.endsWith("."))
-                                             tokens.add(temp.substring(0, temp.length()-1));
-                                         else
-                                            tokens.add(temp);
-                                    }
-                                }
-                            }
                         } else {
                             temp = temp.replaceAll(".", "");
                             if (temp.length() >= 3)
