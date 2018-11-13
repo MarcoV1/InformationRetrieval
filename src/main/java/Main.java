@@ -23,9 +23,8 @@ public class Main {
             // src\main\java\text\amazon_reviews_us_Wireless_v1_00.tsv 256
             corpus = new TSVReader(args[0]);
 
-        } catch (Exception ex) {
-            System.out.println("Usage: target_file [max_memory(MB)]");
-            System.exit(-1);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
         try {
             maxMem = Integer.parseInt(args[1]);
@@ -36,27 +35,8 @@ public class Main {
         WeightedIndexer indexer = new WeightedIndexer();
 
         Scanner sc = new Scanner(System.in);
-        System.out.println("Tipo de tokenizer a ser usado: \n>Simples\n>Improved");
-        String typeTokenizer;
-        do {
-            typeTokenizer = sc.nextLine().toLowerCase();
-        } while (!typeTokenizer.equals("simples") && !typeTokenizer.equals("improved"));
+        tokenizer = new ImprovedTokenizer(new englishStemmer());
 
-        if (typeTokenizer.equals("simples")) {
-            tokenizer = new SimpleTokenizer();
-        } else if (typeTokenizer.equals("improved")) {
-            System.out.println("Com ou sem stemmer? (c/s)");
-            do {
-                typeTokenizer = sc.nextLine().toLowerCase();
-
-            } while (!typeTokenizer.equals("c") && !typeTokenizer.equals("s"));
-
-            if (typeTokenizer.equals("s")) {
-                tokenizer = new ImprovedTokenizer();
-            } else if (typeTokenizer.equals("c")) {
-                tokenizer = new ImprovedTokenizer(new englishStemmer());
-            }
-        }
 
         Document doc = corpus.nextDocument();
         System.out.println("Starting block by block index");

@@ -108,23 +108,21 @@ public class QueryParser {
             BufferedReader br = new BufferedReader(new FileReader(index_file));
             String[] split;
             String readS = br.readLine();
-            for (String t : termos) {
-                while (readS != null) {
-                    // ler todos os termos do index
-                    split = readS.split(",");
-                    if (t.equals(split[0])) {
-                        for (int i = 1; i < split.length; i++) {
-                            // inserir os termos com os devidos pesos e o document id associado
-                            index_weight.put(t, new HashMap());
-                            index_weight.get(t).put(
-                                    Integer.parseInt(split[i].split(":")[0]),
-                                    Double.parseDouble(split[i].split(":")[1]));
-                        }
+            while (readS != null) {
+                // ler todos os termos do index
+                split = readS.split(",");
+                if (termos.contains(split[0])) {
+                    for (int i = 1; i < split.length; i++) {
+                        // inserir os termos com os devidos pesos e o document id associado
+                        index_weight.put(split[0], new HashMap());
+                        index_weight.get(split[0]).put(
+                                Integer.parseInt(split[i].split(":")[0]),
+                                Double.parseDouble(split[i].split(":")[1]));
                     }
-                    readS = br.readLine();
                 }
-
+                readS = br.readLine();
             }
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(QueryParser.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -141,17 +139,19 @@ public class QueryParser {
         // weight t,d * weight t,q 
         // percorer o index, e os pesos das queries, para calcular o score
         query_weight.keySet().forEach((query) -> {
-            index_weight.get(query).keySet().stream().map((document_id) -> {
-                if (!scores.containsKey(document_id)) {
-                    scores.put(document_id, 0d);
-                }
-                return document_id;
-            }).forEachOrdered((document_id) -> {
-                double temp = scores.get(document_id);
-                // scores[d] += w t,d * w t,q
-                scores.put(document_id, temp + index_weight.get(query).get(document_id)
-                        * query_weight.get(query));
-            });
+            if (index_weight.containsKey(query)) {
+                index_weight.get(query).keySet().stream().map((document_id) -> {
+                    if (!scores.containsKey(document_id)) {
+                        scores.put(document_id, 0d);
+                    }
+                    return document_id;
+                }).forEachOrdered((document_id) -> {
+                    double temp = scores.get(document_id);
+                    // scores[d] += w t,d * w t,q
+                    scores.put(document_id, temp + index_weight.get(query).get(document_id)
+                            * query_weight.get(query));
+                });
+            }
         });
         return scores;
     }

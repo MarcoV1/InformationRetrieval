@@ -1,6 +1,9 @@
 
 import documents.QueryDocument;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.tartarus.snowball.ext.englishStemmer;
 import queries.QueryParser;
 import tokenizer.ImprovedTokenizer;
 import tokenizer.Tokenizer;
@@ -18,20 +21,26 @@ import tokenizer.Tokenizer;
  */
 public class QueryMain {
     
-     public static final String dir = "src/main/java/text/query.txt";
+     public static final String dir = "src/main/java/text/query2.txt";
     
     public static void main(String[] args) {
         
         QueryParser query = new QueryParser(dir);
         QueryDocument doc = query.getDoc();
         
-        Tokenizer tokenizer = new ImprovedTokenizer();
+        Tokenizer tokenizer = new ImprovedTokenizer(new englishStemmer());
         
         List<String> tokens = tokenizer.tokenize(doc);
         query.addTokens(tokens);
-        query.loadIndex();
+        System.out.println("Calculating Query Weight");
         query.queryWeight();
-        
+        System.out.println("Loading relevant index tokens");
+        query.loadIndex();
+        System.out.println("Calculating scores");
+        Map<Integer, Double> scores = query.calculateQueryTFIDF();
+        for(Entry<Integer, Double> s: scores.entrySet()) {
+            System.out.println(s);
+        }
         
     }
     

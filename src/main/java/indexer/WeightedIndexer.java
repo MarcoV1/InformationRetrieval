@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -47,7 +48,7 @@ public class WeightedIndexer {
             for (String termo : sorted) {
                 bw.write(termo);
                 for (Integer i : index.get(termo).keySet()) {
-                    String w = "," + i + ":" + index.get(termo).get(i);
+                    String w = "," + i + ":" + String.format(Locale.US,"%.3f", index.get(termo).get(i) );
                     bw.write(w);
                 }
                 bw.newLine();
@@ -55,9 +56,7 @@ public class WeightedIndexer {
             }
             bw.close();
         } catch (IOException e) {
-
             e.printStackTrace();
-
         }
         outputFile = null;
         index = null;
