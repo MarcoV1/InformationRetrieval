@@ -25,7 +25,7 @@ public class QueryParser {
     private File file;
     private QueryDocument doc;
     private Map<String, Double> query_weight = new HashMap();
-    private Map<String, Map<Integer,Double>> index_query = new HashMap();
+    private Map<String, Map<Integer,Double>> index_weight = new HashMap();
     private static final String index_dir = "index.txt";
     private int indexSize = 0;
 
@@ -64,7 +64,7 @@ public class QueryParser {
             if (!query_weight.containsKey(x)) {
                 query_weight.put(x, 0d);
             }
-            double frequency = 1 + Math.log10(contagem.get(x)) * Math.log10(this.indexSize / index_query.get(x).size() );
+            double frequency = 1 + Math.log10(contagem.get(x)) * Math.log10(this.indexSize / index_weight.get(x).size() );
             sum_f += Math.pow(frequency, 2);
             query_weight.put(x, frequency);            
         }
@@ -116,8 +116,8 @@ public class QueryParser {
                     if (t.equals(split[0])) {
                         for (int i = 1; i < split.length; i++) {
                             // inserir os termos com os devidos pesos e o document id associado
-                            index_query.put(t, new HashMap());
-                            index_query.get(t).put(
+                            index_weight.put(t, new HashMap());
+                            index_weight.get(t).put(
                                     Integer.parseInt(split[i].split(":")[0]),
                                     Double.parseDouble(split[i].split(":")[1]));
                         }
@@ -135,18 +135,25 @@ public class QueryParser {
     
     public void calculateQueryTFIDF() {
         
-        // usando os pesos da query, e os pesos do tokens adquiridos do index
         Map<Integer, Double> scores = new HashMap();
         
-        int N = this.indexSize;
-       // int df = this.index_query.get(N)
-        
-       for (String termo : index_query.keySet()) {
-           
-                      
-       }
+       // usando os pesos da query, e os pesos do tokens adquiridos do index
+       // para cada par doc, tf - o score de um documento vai ser igual ao 
+       // weight t,d * weight t,q 
        
-        
+       // percorer o index, e os pesos das queries, para calcular o score
+       query_weight.keySet().forEach((query) -> {
+           index_weight.get(query).keySet().stream().map((document_id) -> {
+               if ( !scores.containsKey(document_id)) {
+                   scores.put(document_id, 0d );
+               }return document_id;
+            }).forEachOrdered((document_id) -> {
+                double temp = scores.get(document_id);
+                // scores[d] += w t,d * w t,q
+                scores.put(document_id, temp + index_weight.get(query).get(document_id) *
+                        query_weight.get(query)) ;
+            });
+        });
     }
     
     private QueryDocument parseQuery(File file) {
