@@ -47,7 +47,7 @@ public class WeightedIndexer {
             for (String termo : sorted) {
                 bw.write(termo);
                 for (Integer i : index.get(termo).keySet()) {
-                    String w = "," + i + ":" + index.get(termo).get(i);
+                    String w = "," + i + ":" + String.format("%.3f", index.get(termo).get(i) );
                     bw.write(w);
                 }
                 bw.newLine();
@@ -55,9 +55,7 @@ public class WeightedIndexer {
             }
             bw.close();
         } catch (IOException e) {
-
             e.printStackTrace();
-
         }
         outputFile = null;
         index = null;

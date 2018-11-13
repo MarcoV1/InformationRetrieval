@@ -23,13 +23,12 @@ public class Main {
             // src\main\java\text\amazon_reviews_us_Wireless_v1_00.tsv 256
             corpus = new TSVReader(args[0]);
 
-        } catch (Exception ex) {
-            System.out.println("Usage: target_file [max_memory(MB)]");
-            System.exit(-1);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
         try {
             maxMem = Integer.parseInt(args[1]);
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             System.out.println("Usage: target_file [max_memory(MB)] " + args[1]);
         }
         Tokenizer tokenizer = null;
