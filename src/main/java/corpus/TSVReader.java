@@ -44,7 +44,7 @@ public class TSVReader implements CorpusReader {
     public Document nextDocument() {
         try {
             String current = br.readLine();
-            if (current == null || i == 1000000) {
+            if (current == null) {
                 return null;
             } else {
                 //5 , 12, 13

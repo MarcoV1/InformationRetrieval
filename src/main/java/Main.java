@@ -30,7 +30,7 @@ public class Main {
         try {
             maxMem = Integer.parseInt(args[1]);
         } catch (Exception ex) {
-            System.out.println("Usage: target_file [max_memory(MB)] " + args[1]);
+            System.out.println("Usage: target_file [max_memory(MB)]" + args[1]);
         }
         Tokenizer tokenizer = null;
         WeightedIndexer indexer = new WeightedIndexer();

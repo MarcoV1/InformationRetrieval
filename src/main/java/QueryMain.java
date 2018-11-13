@@ -18,7 +18,7 @@ import tokenizer.Tokenizer;
  */
 public class QueryMain {
     
-     public static final String dir = "src/java/main/text/query.txt";
+     public static final String dir = "src/main/java/text/query.txt";
     
     public static void main(String[] args) {
         
@@ -28,8 +28,9 @@ public class QueryMain {
         Tokenizer tokenizer = new ImprovedTokenizer();
         
         List<String> tokens = tokenizer.tokenize(doc);
+        query.addTokens(tokens);
         query.loadIndex();
-        query.queryWeight(tokens);
+        query.queryWeight();
         
         
     }
