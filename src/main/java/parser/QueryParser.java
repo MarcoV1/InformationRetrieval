@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package queries;
+package parser;
 
 import documents.QueryDocument;
 import java.io.BufferedReader;
@@ -31,7 +31,10 @@ public class QueryParser {
     private List<String> tokens;
 
     public QueryParser(String dir) {
+        
         countDocumentSize();
+       // countDocumentSize(dir);
+
         this.file = checkFile(dir);
         this.doc = parseQuery(file);
     }
@@ -97,6 +100,7 @@ public class QueryParser {
         }
 
     }
+    
 
     public void loadIndex() {
         // ordenar os termos 
