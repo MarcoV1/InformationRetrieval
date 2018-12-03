@@ -30,7 +30,7 @@ public class MetricsTestMain {
         String relevanceDir = "src/main/java/text/cranfield.query.relevance.txt";
         String queryDir = "src/main/java/text/cranfield.queries.txt";
         String cranfieldDir = "src/main/java/text/cranfield";
-        
+        int maxMem = 1024;
         
         Map<Integer, Map<Integer, Double>> scores = new HashMap();
         SortedSet<Double> latencies = new TreeSet();
@@ -40,7 +40,6 @@ public class MetricsTestMain {
         } catch (IOException ex) {
             Logger.getLogger(MetricsTestMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        int maxMem = 1024;
         WeightedIndexer indexer = new WeightedIndexer();
         Tokenizer tokenizer = new ImprovedTokenizer(new englishStemmer());
 
@@ -98,7 +97,11 @@ public class MetricsTestMain {
 
         System.out.println("\nAssignment 3 Metrics");
         System.out.println("--------------------------------------------------------------------");
-
+        System.out.format("Precision: %.3f \n", metrics.getPrecision());
+        System.out.format("Recall: %.3f \n", metrics.getRecall());
+        System.out.format("F-measure: %.3f \n", metrics.getFmeasure());
+        System.out.format("Mean Average Precision %.3f \n", metrics.getPrecision10());
+       // System.out.format("NDCG %.3f \n");
         System.out.format("Median Query Latency: %.3f \n", medianLatency);
         System.out.format("Query Throughput: %.3f\n", queryThroughtput);
 
