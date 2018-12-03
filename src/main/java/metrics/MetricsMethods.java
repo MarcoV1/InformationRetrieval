@@ -61,8 +61,8 @@ public class MetricsMethods {
                         queryPrecision += (double) (relevantReadDocs / readDocs);
                     }
                 }
-                // Calculate average of precision
-                avgPrec += queryPrecision / relevantDocs.size();
+                // calcular precisão média
+                avgPrec += (double) (queryPrecision / relevantDocs.size());
             }
         }
         

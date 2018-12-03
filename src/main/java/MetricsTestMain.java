@@ -101,7 +101,7 @@ public class MetricsTestMain {
         System.out.format("Recall: %.3f \n", metrics.getRecall());
         System.out.format("F-measure: %.3f \n", metrics.getFmeasure());
         System.out.format("Mean Average Precision %.3f \n", metrics.getPrecision10());
-       // System.out.format("NDCG %.3f \n");
+        System.out.format("NDCG %.3f \n", metrics.getNdcg());
         System.out.format("Median Query Latency: %.3f \n", medianLatency);
         System.out.format("Query Throughput: %.3f\n", queryThroughtput);
 
