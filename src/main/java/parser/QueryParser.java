@@ -21,22 +21,26 @@ import java.util.logging.Logger;
 
 public class QueryParser {
 
-    private int docId = -1;
+    private static int docId = 0;
     private File file;
-    private QueryDocument doc;
     private Map<String, Double> query_weight = new HashMap();
     private Map<String, Map<Integer, Double>> index_weight = new HashMap();
     private static final String index_dir = "index.txt";
     private int indexSize = 0;
     private List<String> tokens;
+    private BufferedReader br;
 
     public QueryParser(String dir) {
-        
+
         countDocumentSize();
-       // countDocumentSize(dir);
+        // countDocumentSize(dir);
 
         this.file = checkFile(dir);
-        this.doc = parseQuery(file);
+        try {
+            this.br = new BufferedReader(new FileReader(dir));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(QueryParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public File checkFile(String dir) {
@@ -100,7 +104,6 @@ public class QueryParser {
         }
 
     }
-    
 
     public void loadIndex() {
         // ordenar os termos 
@@ -160,30 +163,22 @@ public class QueryParser {
         return scores;
     }
 
-    private QueryDocument parseQuery(File file) {
+    public void addTokens(List<String> tokens) {
+        this.tokens = tokens;
+    }
 
-        String line;
+    public QueryDocument nextDoc() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            line = br.readLine();
+            String line = br.readLine();
             QueryDocument query = new QueryDocument(docId++, line);
-
             return query;
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(QueryParser.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(QueryParser.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-
-    public QueryDocument getDoc() {
-        return doc;
+    
+    public static int curId(){
+        return docId;
     }
-
-    public void addTokens(List<String> tokens) {
-        this.tokens = tokens;
-    }
-
 }

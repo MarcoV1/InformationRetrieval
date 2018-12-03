@@ -99,7 +99,7 @@ public class CranfieldReader implements CorpusReader {
         if (current == null) {
             return null;
         } else {
-            return new TSVDocument(0 /*Integer.parseInt(doc.getNamedItem("DOCNO").getNodeValue())*/, current);
+            return new TSVDocument(Integer.parseInt(doc.getElementsByTagName("DOCNO").item(0).getTextContent().replaceAll("\n", "")), current);
         }
     }
 

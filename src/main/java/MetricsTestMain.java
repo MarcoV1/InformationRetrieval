@@ -7,9 +7,13 @@ import documents.GoldStandard;
 import documents.QueryDocument;
 import indexer.WeightedIndexer;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import metrics.MetricsMethods;
@@ -26,7 +30,10 @@ public class MetricsTestMain {
         String relevanceDir = "src/main/java/text/cranfield.query.relevance.txt";
         String queryDir = "src/main/java/text/cranfield.queries.txt";
         String cranfieldDir = "src/main/java/text/cranfield";
-
+        
+        
+        Map<Integer, Map<Integer, Double>> scores = new HashMap();
+        SortedSet<Double> latencies = new TreeSet();
         CorpusReader corpus = null;
         try {
             corpus = new CranfieldReader(cranfieldDir);
@@ -44,11 +51,9 @@ public class MetricsTestMain {
                 System.out.println("Saving Block");
                 indexer.saveBlock();
                 System.gc();
-                //System.out.println((runtime.totalMemory() - runtime.freeMemory()) / 1000000);
             }
             indexer.addToSPIMIIndex(tokenizer.tokenize(currentDoc), currentDoc.getId());
             currentDoc = corpus.nextDocument();
-            //System.out.println(doc);
         }
         int b = indexer.saveBlock();
         System.out.println("Saving Last Block");
@@ -63,41 +68,41 @@ public class MetricsTestMain {
         // parse do ficheiro query.relevance que o prof fornece
         gs = gsp.parseFile();
 
-        
         // inicio do processamento das queries
-        long startTime = System.currentTimeMillis();
-                    
+        long totalStartTime = System.currentTimeMillis();    
         QueryParser query = new QueryParser(queryDir);
-        QueryDocument doc = query.getDoc();
-
-        List<String> tokens = tokenizer.tokenize(doc);
-        query.addTokens(tokens);
-        System.out.println("Calculating Query Weight");
-        query.queryWeight();
-        System.out.println("Loading relevant index tokens");
-        query.loadIndex();
-        System.out.println("Calculating query scores: ");
-
-        // fim do processamento das queries
-        long endTime = System.currentTimeMillis();
-
-        double latency = (double) (endTime - startTime) / 1000;  
-                    
-        Map<Integer, Double> scores = query.calculateQueryTFIDF();
-        scores.entrySet().forEach((s) -> {
-            System.out.println(s);
-        });
-
+        while (true) {
+            long startTime = System.currentTimeMillis();          
+            QueryDocument doc = query.nextDoc();
+            if (doc == null) {
+                break;
+            }
+            List<String> tokens = tokenizer.tokenize(doc);
+            query.addTokens(tokens);
+            System.out.println("Calculating Query Weight");
+            query.queryWeight();
+            System.out.println("Loading relevant index tokens");
+            query.loadIndex();
+            System.out.println("Calculating query scores: ");
+            
+            Map<Integer, Double> queryScores = query.calculateQueryTFIDF();
+            scores.put(doc.getId(), queryScores);
+            // fim do processamento das queries
+            long endTime = System.currentTimeMillis();
+            latencies.add((double) (endTime - startTime) / 1000);
+        }
+        long totalEndTime = System.currentTimeMillis();
+        double queryThroughtput = (double) (totalEndTime - totalStartTime) / 1000 /QueryParser.curId();
+        
         MetricsMethods metrics = new MetricsMethods(scores, gs);
 
         metrics.calculateMeasures();
-        
+
         System.out.println("\nAssignment 3 Metrics");
         System.out.println("--------------------------------------------------------------------");
-            
-        System.out.format("Median Query Latency: %.3f \n", latency);
-        System.out.format("Query Throughput: %d\n", Math.round(1 / latency));
 
+        System.out.format("Median Query Latency: %.3f \n", median(latencies));
+        System.out.format("Query Throughput: %d\n", queryThroughtput);
 
     }
 
@@ -109,5 +114,14 @@ public class MetricsTestMain {
         } else {
             return (runtime.freeMemory() / runtime.totalMemory() < 0.20);
         }
+    }
+    
+    public static Double median(Set<Double> set) {
+        Double[] d = null;
+        set.toArray(d);
+        if (set.size() % 2 == 0)
+            return d[(int) set.size()/2] + d[(int) set.size()/2 +1];
+        else
+            return d[(int) set.size()/2 +1];
     }
 }
