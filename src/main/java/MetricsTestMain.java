@@ -79,11 +79,8 @@ public class MetricsTestMain {
             }
             List<String> tokens = tokenizer.tokenize(doc);
             query.addTokens(tokens);
-            System.out.println("Calculating Query Weight");
             query.queryWeight();
-            System.out.println("Loading relevant index tokens");
             query.loadIndex();
-            System.out.println("Calculating query scores: ");
             
             Map<Integer, Double> queryScores = query.calculateQueryTFIDF();
             scores.put(doc.getId(), queryScores);
@@ -92,7 +89,8 @@ public class MetricsTestMain {
             latencies.add((double) (endTime - startTime) / 1000);
         }
         long totalEndTime = System.currentTimeMillis();
-        double queryThroughtput = (double) (totalEndTime - totalStartTime) / 1000 /QueryParser.curId();
+        double medianLatency = median(latencies);
+        double queryThroughtput = 1/medianLatency;
         
         MetricsMethods metrics = new MetricsMethods(scores, gs);
 
@@ -101,8 +99,8 @@ public class MetricsTestMain {
         System.out.println("\nAssignment 3 Metrics");
         System.out.println("--------------------------------------------------------------------");
 
-        System.out.format("Median Query Latency: %.3f \n", median(latencies));
-        System.out.format("Query Throughput: %d\n", queryThroughtput);
+        System.out.format("Median Query Latency: %.3f \n", medianLatency);
+        System.out.format("Query Throughput: %.3f\n", queryThroughtput);
 
     }
 
@@ -117,11 +115,11 @@ public class MetricsTestMain {
     }
     
     public static Double median(Set<Double> set) {
-        Double[] d = null;
+        Double[] d = new Double[set.size()];
         set.toArray(d);
         if (set.size() % 2 == 0)
-            return d[(int) set.size()/2] + d[(int) set.size()/2 +1];
+            return d[(int) (set.size()/2)] + d[(int) (set.size()/2) +1];
         else
-            return d[(int) set.size()/2 +1];
+            return d[(int) (set.size()/2) +1];
     }
 }

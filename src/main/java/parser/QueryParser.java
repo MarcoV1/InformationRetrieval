@@ -171,6 +171,8 @@ public class QueryParser {
         try {
             String line = br.readLine();
             QueryDocument query = new QueryDocument(docId++, line);
+            if (query.getText() == null)
+                return null;
             return query;
         } catch (IOException ex) {
             Logger.getLogger(QueryParser.class.getName()).log(Level.SEVERE, null, ex);

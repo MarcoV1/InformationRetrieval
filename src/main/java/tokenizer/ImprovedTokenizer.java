@@ -33,7 +33,6 @@ public class ImprovedTokenizer implements Tokenizer {
 
     @Override
     public List<String> tokenize(Documento doc) {
-
         String text = doc.getText();
         text = text.replaceAll("[^A-Za-z0-9 \\.-]", "").toLowerCase();
         //text = text.replaceAll("[*+/)\"\\|=(,:;'?!\n&]<>", "").toLowerCase();
