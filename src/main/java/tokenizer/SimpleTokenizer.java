@@ -5,14 +5,14 @@
  */
 package tokenizer;
 
-import documents.Document;
+import documents.Documento;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleTokenizer implements Tokenizer {
 
     @Override
-    public List<String> tokenize(Document doc) {
+    public List<String> tokenize(Documento doc) {
         List<String> termos = new ArrayList<>();
         // ler documentos ou lista de documentos
         String text = doc.getText();

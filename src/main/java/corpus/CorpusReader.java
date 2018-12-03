@@ -5,11 +5,11 @@
  */
 package corpus;
 
-import documents.Document;
+import documents.Documento;
 import java.io.File;
 
 public interface CorpusReader {
     
-    public Document nextDocument();
+    public Documento nextDocument();
     public File checkFile(String dir);
 }

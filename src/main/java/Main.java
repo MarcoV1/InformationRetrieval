@@ -1,7 +1,7 @@
 
 import corpus.CorpusReader;
 import corpus.TSVReader;
-import documents.Document;
+import documents.Documento;
 import indexer.Indexer;
 import indexer.WeightedIndexer;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class Main {
         tokenizer = new ImprovedTokenizer(new englishStemmer());
 
 
-        Document doc = corpus.nextDocument();
+        Documento doc = corpus.nextDocument();
         System.out.println("Starting block by block index");
         while (doc != null) {
             if (checkMem(maxMem)) {
@@ -60,7 +60,7 @@ public class Main {
         }
     }
 
-    private static boolean checkMem(int maxMem) {
+    public static boolean checkMem(int maxMem) {
         Runtime runtime = Runtime.getRuntime();
         //System.out.println(runtime.totalMemory()/ 1000000 + "  " + runtime.freeMemory()/ 1000000);
         if (maxMem > 0) {

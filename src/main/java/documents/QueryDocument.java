@@ -5,7 +5,7 @@
  */
 package documents;
 
-public class QueryDocument extends Document {
+public class QueryDocument extends Documento {
     
     public QueryDocument(int id, String text) {
         super(id, text);

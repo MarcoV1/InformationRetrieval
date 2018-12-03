@@ -5,11 +5,11 @@
  */
 package tokenizer;
 
-import documents.Document;
+import documents.Documento;
 import java.util.List;
 
 public interface Tokenizer {
     
-    public List<String> tokenize(Document doc);
+    public List<String> tokenize(Documento doc);
     
 }

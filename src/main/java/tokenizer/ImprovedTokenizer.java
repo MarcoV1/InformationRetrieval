@@ -5,7 +5,7 @@
  */
 package tokenizer;
 
-import documents.Document;
+import documents.Documento;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ImprovedTokenizer implements Tokenizer {
     }
 
     @Override
-    public List<String> tokenize(Document doc) {
+    public List<String> tokenize(Documento doc) {
 
         String text = doc.getText();
         text = text.replaceAll("[^A-Za-z0-9 \\.-]", "").toLowerCase();

@@ -6,7 +6,7 @@
 package documents;
 
 
-public class TSVDocument extends Document{
+public class TSVDocument extends Documento{
     
     public TSVDocument(int id, String text) {
         super(id, text);

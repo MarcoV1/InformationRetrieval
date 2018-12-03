@@ -5,7 +5,7 @@
  */
 package corpus;
 
-import documents.Document;
+import documents.Documento;
 import documents.TSVDocument;
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class TSVReader implements CorpusReader {
 
-    List<Document> documents;
+    List<Documento> documents;
     int i;
     BufferedReader br;
 
@@ -41,7 +41,7 @@ public class TSVReader implements CorpusReader {
         }
     }
     @Override
-    public Document nextDocument() {
+    public Documento nextDocument() {
         try {
             String current = br.readLine();
             if (current == null) {
