@@ -25,10 +25,11 @@ public class MetricsTestMain {
 
         String relevanceDir = "src/main/java/text/cranfield.query.relevance.txt";
         String queryDir = "src/main/java/text/cranfield.queries.txt";
+        String cranfieldDir = "src/main/java/text/cranfield";
 
         CorpusReader corpus = null;
         try {
-            corpus = new CranfieldReader("src/main/java/text/cranfield");
+            corpus = new CranfieldReader(cranfieldDir);
         } catch (IOException ex) {
             Logger.getLogger(MetricsTestMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -62,6 +63,10 @@ public class MetricsTestMain {
         // parse do ficheiro query.relevance que o prof fornece
         gs = gsp.parseFile();
 
+        
+        // inicio do processamento das queries
+        long startTime = System.currentTimeMillis();
+                    
         QueryParser query = new QueryParser(queryDir);
         QueryDocument doc = query.getDoc();
 
@@ -71,8 +76,13 @@ public class MetricsTestMain {
         query.queryWeight();
         System.out.println("Loading relevant index tokens");
         query.loadIndex();
-        System.out.println("Calculating scores");
+        System.out.println("Calculating query scores: ");
 
+        // fim do processamento das queries
+        long endTime = System.currentTimeMillis();
+
+        double latency = (double) (endTime - startTime) / 1000;  
+                    
         Map<Integer, Double> scores = query.calculateQueryTFIDF();
         scores.entrySet().forEach((s) -> {
             System.out.println(s);
@@ -81,6 +91,13 @@ public class MetricsTestMain {
         MetricsMethods metrics = new MetricsMethods(scores, gs);
 
         metrics.calculateMeasures();
+        
+        System.out.println("\nAssignment 3 Metrics");
+        System.out.println("--------------------------------------------------------------------");
+            
+        System.out.format("Median Query Latency: %.3f \n", latency);
+        System.out.format("Query Throughput: %d\n", Math.round(1 / latency));
+
 
     }
 

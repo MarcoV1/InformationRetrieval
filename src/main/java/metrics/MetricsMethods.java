@@ -10,15 +10,14 @@ public class MetricsMethods {
     private Map<Integer, Double> scores;
     private GoldStandard gs;
     
-    int precision, recall, avgPrec, prec10, recipRank, fmeasure; 
+    int precision, recall, fmeasure, avgPrec, prec10, ndcg;
 
     public MetricsMethods(Map<Integer, Double> scores, GoldStandard gs) {
     
-        precision = recall = avgPrec = prec10 = recipRank = fmeasure = 0;
+        precision = recall = fmeasure = avgPrec = prec10 = ndcg = 0;
         
         this.scores = scores;
         this.gs = gs;
-        
         
     }
 
