@@ -44,7 +44,7 @@ public class GSParser {
                 int docId = Integer.parseInt(split[1]);
                 int relevanceValue = Integer.parseInt(split[2]);
                 
-                if (relevanceValue > 0 && relevanceValue < 4) {
+                if (relevanceValue > 0 && relevanceValue <= 4) {
                     // caso o id da query não exista, é criado um mapa novo para os valores 
                      if (queryId != lastID) {
                         relevanceMap.put(lastID, new HashMap(value));
