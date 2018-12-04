@@ -164,6 +164,7 @@ public class QueryParser {
     }
 
     public void addTokens(List<String> tokens) {
+        this.query_weight = new HashMap();
         this.tokens = tokens;
     }
 

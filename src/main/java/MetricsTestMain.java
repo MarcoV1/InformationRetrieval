@@ -31,7 +31,7 @@ public class MetricsTestMain {
         String queryDir = "src/main/java/text/cranfield.queries.txt";
         String cranfieldDir = "src/main/java/text/cranfield";
         int maxMem = 1024;
-        
+
         Map<Integer, Map<Integer, Double>> scores = new HashMap();
         SortedSet<Double> latencies = new TreeSet();
         CorpusReader corpus = null;
@@ -68,10 +68,10 @@ public class MetricsTestMain {
         gs = gsp.parseFile();
 
         // inicio do processamento das queries
-        long totalStartTime = System.currentTimeMillis();    
+        long totalStartTime = System.currentTimeMillis();
         QueryParser query = new QueryParser(queryDir);
         while (true) {
-            long startTime = System.currentTimeMillis();          
+            long startTime = System.currentTimeMillis();
             QueryDocument doc = query.nextDoc();
             if (doc == null) {
                 break;
@@ -80,7 +80,7 @@ public class MetricsTestMain {
             query.addTokens(tokens);
             query.queryWeight();
             query.loadIndex();
-            
+
             Map<Integer, Double> queryScores = query.calculateQueryTFIDF();
             scores.put(doc.getId(), queryScores);
             // fim do processamento das queries
@@ -89,8 +89,8 @@ public class MetricsTestMain {
         }
         long totalEndTime = System.currentTimeMillis();
         double medianLatency = median(latencies);
-        double queryThroughtput = 1/medianLatency;
-        
+        double queryThroughtput = 1 / medianLatency;
+
         MetricsMethods metrics = new MetricsMethods(scores, gs);
 
         metrics.calculateMeasures();
@@ -101,7 +101,7 @@ public class MetricsTestMain {
         System.out.format("Recall: %.3f \n", metrics.getRecall());
         System.out.format("F-measure: %.3f \n", metrics.getFmeasure());
         System.out.format("Mean Average Precision %.3f \n", metrics.getPrecision10());
-        System.out.format("NDCG %.3f \n", metrics.getNdcg());
+        System.out.format("NDCG: " + arrToStr(metrics.getNdcg()) + "\n");
         System.out.format("Median Query Latency: %.3f \n", medianLatency);
         System.out.format("Query Throughput: %.3f\n", queryThroughtput);
 
@@ -116,13 +116,23 @@ public class MetricsTestMain {
             return (runtime.freeMemory() / runtime.totalMemory() < 0.20);
         }
     }
-    
+
     public static Double median(Set<Double> set) {
         Double[] d = new Double[set.size()];
         set.toArray(d);
-        if (set.size() % 2 == 0)
-            return d[(int) (set.size()/2)] + d[(int) (set.size()/2) +1];
-        else
-            return d[(int) (set.size()/2) +1];
+        if (set.size() % 2 == 0) {
+            return d[(int) (set.size() / 2)] + d[(int) (set.size() / 2) + 1];
+        } else {
+            return d[(int) (set.size() / 2) + 1];
+        }
+    }
+
+    public static <T> String arrToStr(List<T> list) {
+        StringBuilder sb = new StringBuilder();
+        for (T o : list) {
+            sb.append(String.format("%.3f", o));
+            sb.append(",");
+        }
+        return sb.toString().substring(0, sb.length()-1);
     }
 }
